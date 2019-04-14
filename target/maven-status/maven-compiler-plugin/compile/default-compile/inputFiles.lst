@@ -1,1 +1,5 @@
-D:\DONT\gaksvytech\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\FieldserviceApiApplication.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\entity\WorkForce.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\FieldserviceApiApplication.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\repository\WorkForceRepository.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\config\SwaggerConfig.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\api\WorkForceContoller.java

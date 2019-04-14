@@ -1,1 +1,5 @@
+com\gaksvytech\fieldservice\api\WorkForceContoller.class
 com\gaksvytech\fieldservice\FieldserviceApiApplication.class
+com\gaksvytech\fieldservice\repository\WorkForceRepository.class
+com\gaksvytech\fieldservice\entity\WorkForce.class
+com\gaksvytech\fieldservice\config\SwaggerConfig.class
