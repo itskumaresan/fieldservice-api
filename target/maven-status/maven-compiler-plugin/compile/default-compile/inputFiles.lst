@@ -1,5 +1,11 @@
-D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\entity\WorkForce.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\emuns\UserWorkStatusEnum.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\model\WorkforceModelUI.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\emuns\UserStatusEnum.java
 D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\FieldserviceApiApplication.java
 D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\repository\WorkForceRepository.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\emuns\UserRoleEnum.java
 D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\config\SwaggerConfig.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\entity\Users.java
 D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\api\WorkForceContoller.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\config\ModelMapperConfig.java
+D:\DONT\GitLab\fieldservice-api\src\main\java\com\gaksvytech\fieldservice\model\WorkforceModel.java

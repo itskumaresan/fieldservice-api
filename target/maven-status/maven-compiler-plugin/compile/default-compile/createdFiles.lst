@@ -1,5 +1,11 @@
+com\gaksvytech\fieldservice\model\WorkforceModelUI.class
+com\gaksvytech\fieldservice\emuns\UserRoleEnum.class
+com\gaksvytech\fieldservice\entity\Users.class
 com\gaksvytech\fieldservice\api\WorkForceContoller.class
 com\gaksvytech\fieldservice\FieldserviceApiApplication.class
 com\gaksvytech\fieldservice\repository\WorkForceRepository.class
-com\gaksvytech\fieldservice\entity\WorkForce.class
+com\gaksvytech\fieldservice\emuns\UserStatusEnum.class
+com\gaksvytech\fieldservice\config\ModelMapperConfig.class
 com\gaksvytech\fieldservice\config\SwaggerConfig.class
+com\gaksvytech\fieldservice\model\WorkforceModel.class
+com\gaksvytech\fieldservice\emuns\UserWorkStatusEnum.class

@@ -7,22 +7,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.gaksvytech.fieldservice.entity.WorkForce;
+import com.gaksvytech.fieldservice.entity.Users;
 
-public interface WorkForceRepository extends JpaRepository<WorkForce, Long> {
+public interface WorkForceRepository extends JpaRepository<Users, Long> {
 
-	List<WorkForce> findAll();
+	List<Users> findAll();
 
-	Optional<WorkForce> findById(Long id);
+	Optional<Users> findById(Long id);
 
-	List<WorkForce> findByName(String name);
+	List<Users> findByUsername(String username);
 
-	List<WorkForce> findByNameAndEmail(String name, String email);
+	List<Users> findByUsernameAndEmail(String username, String email);
 
-	@Query("SELECT w FROM WorkForce w WHERE (:name is null or w.name = :name) and (:email is null or w.email = :email)")
-	List<WorkForce> findWorkForceByNameAndEmail(@Param("name") String name, @Param("email") String email);
+	@Query("SELECT w FROM Users w WHERE (:username is null or w.username = :username) and (:email is null or w.email = :email)")
+	List<Users> findWorkForceByUsernameAndEmail(@Param("username") String username, @Param("email") String email);
 
 	@SuppressWarnings("unchecked")
-	WorkForce save(WorkForce entity);
+	Users save(Users entity);
 
 }
