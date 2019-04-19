@@ -1,10 +1,12 @@
 package com.gaksvytech.fieldservice.model;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
+import com.gaksvytech.fieldservice.emuns.EventPriorityEnum;
+import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
+import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,16 +19,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class UserModelUI {
+public class EventModelUI {
 	private long id;
 	private String name;
-	private String password;
-	private String email;
-	private UserRoleEnum role;
-	private UserWorkStatusEnum status;
+	private EventStatusEnum status;
+	private EventPriorityEnum priority;
+	private EventSeverityEnum severity;
 	private ActiveFlagEnum active;
 	private String latitude;
 	private String longitude;
+	private Date startDate;
+	private Date endDate;
 	private LocalDateTime created;
 	private LocalDateTime updated;
 }

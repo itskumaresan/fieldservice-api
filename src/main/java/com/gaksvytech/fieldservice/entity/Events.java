@@ -1,6 +1,7 @@
 package com.gaksvytech.fieldservice.entity;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,13 +9,16 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
+import com.gaksvytech.fieldservice.emuns.EventPriorityEnum;
+import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
+import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -30,7 +34,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Users {
+public class Events {
 
 	@Id
 	@GeneratedValue
@@ -38,21 +42,26 @@ public class Users {
 
 	private String name;
 
-	private String password;
-
-	private String email;
+	@Enumerated(EnumType.STRING)
+	private EventStatusEnum status;
 
 	@Enumerated(EnumType.STRING)
-	private UserRoleEnum role;
+	private EventPriorityEnum priority;
 
 	@Enumerated(EnumType.STRING)
-	private UserWorkStatusEnum status;
+	private EventSeverityEnum severity;
 
 	@Enumerated(EnumType.STRING)
 	private ActiveFlagEnum active;
 
 	private String latitude;
 	private String longitude;
+
+	@Temporal(TemporalType.DATE)
+	private Date startDate;
+
+	@Temporal(TemporalType.DATE)
+	private Date endDate;
 
 	@CreationTimestamp
 	@Column(updatable = false)

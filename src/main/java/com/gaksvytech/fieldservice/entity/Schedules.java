@@ -1,20 +1,17 @@
 package com.gaksvytech.fieldservice.entity;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -30,29 +27,18 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Users {
+public class Schedules {
 
 	@Id
 	@GeneratedValue
 	private long id;
 
-	private String name;
+	private long eventId;
 
-	private String password;
+	private long userId;
 
-	private String email;
-
-	@Enumerated(EnumType.STRING)
-	private UserRoleEnum role;
-
-	@Enumerated(EnumType.STRING)
-	private UserWorkStatusEnum status;
-
-	@Enumerated(EnumType.STRING)
-	private ActiveFlagEnum active;
-
-	private String latitude;
-	private String longitude;
+	@Temporal(TemporalType.DATE)
+	private Date scheduleDate;
 
 	@CreationTimestamp
 	@Column(updatable = false)

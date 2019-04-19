@@ -15,12 +15,12 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
 	Optional<Users> findById(Long id);
 
-	List<Users> findByUsername(String username);
+	List<Users> findByName(String name);
 
-	List<Users> findByUsernameAndEmail(String username, String email);
+	List<Users> findByNameAndEmail(String name, String email);
 
-	@Query("SELECT w FROM Users w WHERE (:username is null or w.username = :username) and (:email is null or w.email = :email)")
-	List<Users> findWorkForceByUsernameAndEmail(@Param("username") String username, @Param("email") String email);
+	@Query("SELECT w FROM Users w WHERE (:name is null or w.name = :name) and (:email is null or w.email = :email)")
+	List<Users> findUsersByNameAndEmail(@Param("name") String name, @Param("email") String email);
 
 	@SuppressWarnings("unchecked")
 	Users save(Users entity);

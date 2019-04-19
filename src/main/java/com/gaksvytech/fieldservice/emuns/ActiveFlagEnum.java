@@ -1,6 +1,6 @@
 package com.gaksvytech.fieldservice.emuns;
 
-public enum UserStatusEnum {
+public enum ActiveFlagEnum {
 
 	Y, N;
 
