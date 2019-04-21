@@ -13,6 +13,8 @@ public interface EventRepository extends JpaRepository<Events, Long> {
 
 	Optional<Events> findById(Long id);
 
+	Optional<Events> findByZoneId(Long zoneId);
+
 	List<Events> findByName(String username);
 
 	@SuppressWarnings("unchecked")

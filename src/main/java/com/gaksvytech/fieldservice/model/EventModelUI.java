@@ -32,4 +32,5 @@ public class EventModelUI {
 	private Date endDate;
 	private LocalDateTime created;
 	private LocalDateTime updated;
+	private ZoneModel zoneModel;
 }

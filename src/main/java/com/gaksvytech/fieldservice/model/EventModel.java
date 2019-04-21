@@ -20,6 +20,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class EventModel {
 	private String name;
+	private int zoneId;
 	private EventStatusEnum status;
 	private EventPriorityEnum priority;
 	private EventSeverityEnum severity;

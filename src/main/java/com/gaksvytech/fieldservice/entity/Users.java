@@ -36,6 +36,8 @@ public class Users {
 	@GeneratedValue
 	private long id;
 
+	private long zoneId;
+
 	private String name;
 
 	private String password;

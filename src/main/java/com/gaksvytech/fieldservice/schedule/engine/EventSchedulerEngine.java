@@ -1,4 +1,4 @@
-package com.gavskytech.fieldservice.schedule.engine;
+package com.gaksvytech.fieldservice.schedule.engine;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,24 +27,24 @@ public class EventSchedulerEngine {
 		zoneList.add(new Zone(4, "5,1", 123456, 23456));
 		zoneList.add(new Zone(5, "3,4", 123456, 23456));
 	}
-	
+
 	public void scheduleEvent(EventModel event) {
 		int noOfUsers = 10;
 		Zone nearByZone = distanceZoneToEvent(event);
 		scheduleUsers(nearByZone, noOfUsers, event);
 	}
-	
+
 	private void scheduleUsers(Zone zone, int noOfUsers, EventModel event) {
-		if(getNoOfAvailableUsersInZone(zone.getZoneId()) >= noOfUsers) {
+		if (getNoOfAvailableUsersInZone(zone.getZoneId()) >= noOfUsers) {
 			allocateUsersToEvent(event, zone, noOfUsers);
 		} else {
 			int noOfAvailableUsersInZone = getNoOfAvailableUsersInZone(zone.getZoneId());
 			allocateUsersToEvent(event, zone, noOfAvailableUsersInZone);
 			noOfUsers = noOfUsers - noOfAvailableUsersInZone;
 			List<String> nearZones = Arrays.asList(zone.getNearByZones().split(","));
-			for(String z: nearZones) {
+			for (String z : nearZones) {
 				Zone nextNearestZone = getZoneById(Integer.parseInt(z));
-				if(noOfUsers <= 0) {
+				if (noOfUsers <= 0) {
 					break;
 				}
 				allocateUsersToEvent(event, nextNearestZone, noOfUsers);
@@ -52,7 +52,7 @@ public class EventSchedulerEngine {
 			}
 		}
 	}
-	
+
 	private int getNoOfAvailableUsersInZone(int zoneId) {
 		// TODO Auto-generated method stub
 		// DAO call to get number of available users in the zone
@@ -62,8 +62,8 @@ public class EventSchedulerEngine {
 	private Zone getZoneById(int zoneId) {
 		// TODO Query DAO to get the zone object
 		Zone zone = null;
-		for(Zone z: zoneList) {
-			if(z.getZoneId() == zoneId) {
+		for (Zone z : zoneList) {
+			if (z.getZoneId() == zoneId) {
 				zone = z;
 				break;
 			}
@@ -72,29 +72,29 @@ public class EventSchedulerEngine {
 	}
 
 	private void allocateUsersToEvent(EventModel event, Zone zone, int noOfUsers) {
-		//TODO - Persist in EventSchedule Table DAO Call
-		//getUsersByZone(); - Available users
-		//persistEventScheduleWithUserList
+		// TODO - Persist in EventSchedule Table DAO Call
+		// getUsersByZone(); - Available users
+		// persistEventScheduleWithUserList
 		/*
 		 * Mark user as scheduled for this event
 		 * 
 		 */
 	}
-	
+
 	private Zone distanceZoneToEvent(EventModel event) {
 		double distanceInKm = 0;
 		double min = Double.MAX_VALUE;
 		Zone nearestZone = null;
-		for(Zone zone: zoneList) {
+		for (Zone zone : zoneList) {
 			distanceInKm = EventSchedulerUtil.distanceBetweenZones(event.getLatitude(), event.getLongitude(), zone.getLattitude(), zone.getLongitude());
-			if(distanceInKm < min) {
+			if (distanceInKm < min) {
 				min = distanceInKm;
 				nearestZone = zone;
 			}
 		}
 		return nearestZone;
 	}
-	
+
 	public static void main(String[] args) {
 		EventModel event = new EventModel();
 		event.setLatitude(62535463);

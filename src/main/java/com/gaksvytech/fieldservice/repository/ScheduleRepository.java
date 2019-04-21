@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.gaksvytech.fieldservice.entity.Schedules;
 
-public interface EventScheduleRepository extends JpaRepository<Schedules, Long> {
+public interface ScheduleRepository extends JpaRepository<Schedules, Long> {
 
 	List<Schedules> findAll();
 

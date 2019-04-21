@@ -46,16 +46,27 @@ public class EventContoller {
 	@GetMapping("")
 	public ResponseEntity<List<EventModelUI>> read() {
 
-		return ResponseEntity.ok(eventRepository.findAll().stream().map(workForce -> convertToModelUI(workForce))
-				.collect(Collectors.toList()));
+		return ResponseEntity.ok(eventRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
 	@ApiOperation(value = "View a Event By Id", response = EventModelUI.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Event By Given Id"),
-			@ApiResponse(code = 404, message = "Unable to retrieve the Event By Id. The Id does not exists") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Event By Given Id"), @ApiResponse(code = 404, message = "Unable to retrieve the Event By Id. The Id does not exists") })
 	@GetMapping("{id}")
 	public ResponseEntity<EventModelUI> read(@PathVariable("id") Long id) {
 		Optional<Events> workForceOptional = eventRepository.findById(id);
+		if (!workForceOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
+		}
+	}
+
+	@ApiOperation(value = "View all Events for given Zone Id", response = EventModelUI.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Event By Given Zone Id"),
+			@ApiResponse(code = 404, message = "Unable to retrieve the Event By Zone Id. The Id does not exists") })
+	@GetMapping("zones/{zoneId}")
+	public ResponseEntity<EventModelUI> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+		Optional<Events> workForceOptional = eventRepository.findByZoneId(zoneId);
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
@@ -76,8 +87,7 @@ public class EventContoller {
 	}
 
 	@ApiOperation(value = "Update a Work Force", response = EventModelUI.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the Event"),
-			@ApiResponse(code = 404, message = "Unable to retrieve the Event By Id. The Id does not exists. Update unsuccessfull") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the Event"), @ApiResponse(code = 404, message = "Unable to retrieve the Event By Id. The Id does not exists. Update unsuccessfull") })
 	@PutMapping("{id}")
 	public ResponseEntity<EventModelUI> update(@RequestBody EventModel workforceModel, @PathVariable Long id) {
 		Optional<Events> workForceOptional = eventRepository.findById(id);

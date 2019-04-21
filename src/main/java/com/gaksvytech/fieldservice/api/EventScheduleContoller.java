@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.gaksvytech.fieldservice.entity.Schedules;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
-import com.gaksvytech.fieldservice.repository.EventScheduleRepository;
+import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiResponses;
 public class EventScheduleContoller {
 
 	@Autowired
-	public EventScheduleRepository eventScheduleRepository;
+	public ScheduleRepository eventScheduleRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;

@@ -40,6 +40,8 @@ public class Events {
 	@GeneratedValue
 	private long id;
 
+	private long zoneId;
+
 	private String name;
 
 	@Enumerated(EnumType.STRING)
@@ -54,14 +56,13 @@ public class Events {
 	@Enumerated(EnumType.STRING)
 	private ActiveFlagEnum active;
 
-	private String latitude;
-	private String longitude;
-
 	@Temporal(TemporalType.DATE)
 	private Date startDate;
 
 	@Temporal(TemporalType.DATE)
 	private Date endDate;
+
+	private int numberOfWorkersRequired;
 
 	@CreationTimestamp
 	@Column(updatable = false)
