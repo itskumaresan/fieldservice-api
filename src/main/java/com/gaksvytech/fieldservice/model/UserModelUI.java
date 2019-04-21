@@ -19,14 +19,14 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class UserModelUI {
 	private long id;
+	private int zoneId;
 	private String name;
 	private String password;
 	private String email;
 	private UserRoleEnum role;
 	private UserWorkStatusEnum status;
 	private ActiveFlagEnum active;
-	private String latitude;
-	private String longitude;
 	private LocalDateTime created;
 	private LocalDateTime updated;
+	private ZoneModel zone;
 }

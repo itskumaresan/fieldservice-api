@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
 
 public interface EventRepository extends JpaRepository<Events, Long> {
@@ -14,6 +15,8 @@ public interface EventRepository extends JpaRepository<Events, Long> {
 	Optional<Events> findById(Long id);
 
 	Optional<Events> findByZoneId(Long zoneId);
+
+	List<Events> findByStatus(EventStatusEnum status);
 
 	List<Events> findByName(String username);
 

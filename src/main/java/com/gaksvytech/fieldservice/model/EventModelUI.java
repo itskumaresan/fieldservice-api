@@ -21,16 +21,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class EventModelUI {
 	private long id;
+	private int zoneId;
 	private String name;
 	private EventStatusEnum status;
 	private EventPriorityEnum priority;
 	private EventSeverityEnum severity;
 	private ActiveFlagEnum active;
-	private String latitude;
-	private String longitude;
 	private Date startDate;
 	private Date endDate;
 	private LocalDateTime created;
 	private LocalDateTime updated;
-	private ZoneModel zoneModel;
+	private ZoneModel zone;
 }

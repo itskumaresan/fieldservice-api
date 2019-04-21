@@ -24,6 +24,7 @@ import com.gaksvytech.fieldservice.entity.Users;
 import com.gaksvytech.fieldservice.model.UserModel;
 import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.UserRepository;
+import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +37,10 @@ import io.swagger.annotations.ApiResponses;
 public class UserContoller {
 
 	@Autowired
-	public UserRepository workForceRepository;
+	public UserRepository userRepository;
+
+	@Autowired
+	public ZoneRepository zoneRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -46,16 +50,27 @@ public class UserContoller {
 	@GetMapping("")
 	public ResponseEntity<List<UserModelUI>> read() {
 
-		return ResponseEntity.ok(workForceRepository.findAll().stream().map(workForce -> convertToModelUI(workForce))
-				.collect(Collectors.toList()));
+		return ResponseEntity.ok(userRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
 	@ApiOperation(value = "View a User By Id", response = UserModelUI.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the User By Given Id"),
-			@ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the User By Given Id"), @ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists") })
 	@GetMapping("{id}")
 	public ResponseEntity<UserModelUI> read(@PathVariable("id") Long id) {
-		Optional<Users> workForceOptional = workForceRepository.findById(id);
+		Optional<Users> workForceOptional = userRepository.findById(id);
+		if (!workForceOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
+		}
+	}
+
+	@ApiOperation(value = "View all Users for given Zone Id", response = UserModelUI.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Users By Given Zone Id"),
+			@ApiResponse(code = 404, message = "Unable to retrieve the Users By Zone Id. The Id does not exists") })
+	@GetMapping("zones/{zoneId}")
+	public ResponseEntity<UserModelUI> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+		Optional<Users> workForceOptional = userRepository.findByZoneId(zoneId);
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
@@ -70,23 +85,22 @@ public class UserContoller {
 		Users user = convertToEntity(workforceModel);
 		user.setActive(ActiveFlagEnum.Y);
 		user.setStatus(UserWorkStatusEnum.UNASSIGNED);
-		Users saved = workForceRepository.save(user);
+		Users saved = userRepository.save(user);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(saved.getId()).toUri();
 		return ResponseEntity.created(uri).body(convertToModelUI(saved));
 	}
 
 	@ApiOperation(value = "Update a User", response = UserModelUI.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the User"),
-			@ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists. Update unsuccessfull") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the User"), @ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists. Update unsuccessfull") })
 	@PutMapping("{id}")
 	public ResponseEntity<UserModelUI> update(@RequestBody UserModel workforceModel, @PathVariable Long id) {
-		Optional<Users> workForceOptional = workForceRepository.findById(id);
+		Optional<Users> workForceOptional = userRepository.findById(id);
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
 			Users user = convertToEntity(workforceModel);
 			user.setId(id);
-			Users saved = workForceRepository.save(user);
+			Users saved = userRepository.save(user);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();
 			} else {
@@ -100,13 +114,13 @@ public class UserContoller {
 			@ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists. Update unsuccessfull") })
 	@PutMapping("{id}/{toStatus}")
 	public ResponseEntity<UserModelUI> updateStatus(@PathVariable Long id, @PathVariable UserWorkStatusEnum toStatus) {
-		Optional<Users> workForceOptional = workForceRepository.findById(id);
+		Optional<Users> workForceOptional = userRepository.findById(id);
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
 			Users user = workForceOptional.get();
 			user.setStatus(toStatus);
-			Users saved = workForceRepository.save(user);
+			Users saved = userRepository.save(user);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();
 			} else {
@@ -117,6 +131,7 @@ public class UserContoller {
 
 	private UserModelUI convertToModelUI(Users workForce) {
 		UserModelUI workforceModelUI = modelMapper.map(workForce, UserModelUI.class);
+		workforceModelUI.setZone(zoneRepository.getZoneById(workforceModelUI.getZoneId()));
 		return workforceModelUI;
 	}
 

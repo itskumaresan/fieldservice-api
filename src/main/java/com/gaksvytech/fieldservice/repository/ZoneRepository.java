@@ -3,10 +3,12 @@ package com.gaksvytech.fieldservice.repository;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
 
 import com.gaksvytech.fieldservice.model.ZoneModel;
 
+@Repository
 public class ZoneRepository {
 
 	static List<ZoneModel> zones = new ArrayList<>();
@@ -19,15 +21,11 @@ public class ZoneRepository {
 	}
 
 	public List<ZoneModel> getZones() {
-
 		return zones;
-
 	}
 
-	public List<ZoneModel> getZoneById(int id) {
-
-		return zones.stream().filter(zone -> zone.getZoneId() == id).collect(Collectors.toList());
-
+	public ZoneModel getZoneById(int id) {
+		return zones.stream().filter(zone -> zone.getZoneId() == id).findFirst().get();
 	}
 
 }

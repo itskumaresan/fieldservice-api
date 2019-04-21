@@ -14,4 +14,7 @@ public interface ScheduleRepository extends JpaRepository<Schedules, Long> {
 
 	Optional<Schedules> findByScheduleDate(Date date);
 
+	@SuppressWarnings("unchecked")
+	Schedules save(Schedules entity);
+
 }

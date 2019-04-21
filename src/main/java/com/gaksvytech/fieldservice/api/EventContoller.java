@@ -24,6 +24,7 @@ import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.model.EventModel;
 import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
+import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,6 +38,9 @@ public class EventContoller {
 
 	@Autowired
 	public EventRepository eventRepository;
+
+	@Autowired
+	public ZoneRepository zoneRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -126,8 +130,9 @@ public class EventContoller {
 	}
 
 	private EventModelUI convertToModelUI(Events event) {
-		EventModelUI workforceModelUI = modelMapper.map(event, EventModelUI.class);
-		return workforceModelUI;
+		EventModelUI eventModelUI = modelMapper.map(event, EventModelUI.class);
+		eventModelUI.setZone(zoneRepository.getZoneById(eventModelUI.getZoneId()));
+		return eventModelUI;
 	}
 
 	private Events convertToEntity(EventModel workforceModel) {
