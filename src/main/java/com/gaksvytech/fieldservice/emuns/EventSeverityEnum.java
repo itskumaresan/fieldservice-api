@@ -2,6 +2,16 @@ package com.gaksvytech.fieldservice.emuns;
 
 public enum EventSeverityEnum {
 
-	CRITICAL, MAJOR, MODERATE, LOW;
+	CRITICAL(4), MAJOR(3), MODERATE(2), LOW(1);
+
+	private int value;
+
+	EventSeverityEnum(int value) {
+		this.value = value;
+	}
+
+	public int value() {
+		return value;
+	}
 
 }

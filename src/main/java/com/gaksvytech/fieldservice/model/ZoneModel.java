@@ -17,7 +17,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class ZoneModel {
 
-	private int zoneId;
+	private int id;
 	private String name; // East, West, North South
 
 	private double lattitude;

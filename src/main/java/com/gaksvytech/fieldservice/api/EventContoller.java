@@ -23,6 +23,7 @@ import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.model.EventModel;
 import com.gaksvytech.fieldservice.model.EventModelUI;
+import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
@@ -65,17 +66,12 @@ public class EventContoller {
 		}
 	}
 
-	@ApiOperation(value = "View all Events for given Zone Id", response = EventModelUI.class)
+	@ApiOperation(value = "View all Events for given Zone Id", response = UserModelUI.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Event By Given Zone Id"),
 			@ApiResponse(code = 404, message = "Unable to retrieve the Event By Zone Id. The Id does not exists") })
 	@GetMapping("zones/{zoneId}")
-	public ResponseEntity<EventModelUI> readByZoneId(@PathVariable("zoneId") Long zoneId) {
-		Optional<Events> workForceOptional = eventRepository.findByZoneId(zoneId);
-		if (!workForceOptional.isPresent()) {
-			return ResponseEntity.notFound().build();
-		} else {
-			return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
-		}
+	public ResponseEntity<List<EventModelUI>> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+		return ResponseEntity.ok(eventRepository.findByZoneId(zoneId).stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
 	@ApiOperation(value = "Create an Event", response = EventModelUI.class)
@@ -131,7 +127,7 @@ public class EventContoller {
 
 	private EventModelUI convertToModelUI(Events event) {
 		EventModelUI eventModelUI = modelMapper.map(event, EventModelUI.class);
-		eventModelUI.setZone(zoneRepository.getZoneById(eventModelUI.getZoneId()));
+		eventModelUI.setZone(zoneRepository.findById(eventModelUI.getZoneId()));
 		return eventModelUI;
 	}
 

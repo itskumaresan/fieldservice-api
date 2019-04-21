@@ -65,17 +65,12 @@ public class UserContoller {
 		}
 	}
 
-	@ApiOperation(value = "View all Users for given Zone Id", response = UserModelUI.class)
+	@ApiOperation(value = "View all Users for given Zone Id", response = UserModelUI.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Users By Given Zone Id"),
 			@ApiResponse(code = 404, message = "Unable to retrieve the Users By Zone Id. The Id does not exists") })
 	@GetMapping("zones/{zoneId}")
-	public ResponseEntity<UserModelUI> readByZoneId(@PathVariable("zoneId") Long zoneId) {
-		Optional<Users> workForceOptional = userRepository.findByZoneId(zoneId);
-		if (!workForceOptional.isPresent()) {
-			return ResponseEntity.notFound().build();
-		} else {
-			return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
-		}
+	public ResponseEntity<List<UserModelUI>> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+		return ResponseEntity.ok(userRepository.findByZoneId(zoneId).stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
 	@ApiOperation(value = "Create an User", response = UserModelUI.class)
@@ -131,7 +126,7 @@ public class UserContoller {
 
 	private UserModelUI convertToModelUI(Users workForce) {
 		UserModelUI workforceModelUI = modelMapper.map(workForce, UserModelUI.class);
-		workforceModelUI.setZone(zoneRepository.getZoneById(workforceModelUI.getZoneId()));
+		workforceModelUI.setZone(zoneRepository.findById(workforceModelUI.getZoneId()));
 		return workforceModelUI;
 	}
 

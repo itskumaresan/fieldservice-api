@@ -1,77 +1,90 @@
 package com.gaksvytech.fieldservice.schedule.engine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
+import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.EventModel;
-import com.gaksvytech.fieldservice.model.Zone;
+import com.gaksvytech.fieldservice.model.UserModel;
+import com.gaksvytech.fieldservice.model.ZoneModel;
+import com.gaksvytech.fieldservice.repository.EventRepository;
+import com.gaksvytech.fieldservice.repository.ScheduleRepository;
+import com.gaksvytech.fieldservice.repository.UserRepository;
+import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
+@Service
 public class EventSchedulerEngine {
 
-	static Map<Integer, Integer> userZoneMap = new HashMap<>();
-	static List<Zone> zoneList = new ArrayList<>();
+	@Autowired
+	public UserRepository userRepository;
 
-	static {
-		userZoneMap.put(1, 10);
-		userZoneMap.put(2, 20);
-		userZoneMap.put(3, 20);
-		userZoneMap.put(4, 10);
-		userZoneMap.put(5, 5);
+	@Autowired
+	public EventRepository eventRepository;
 
-		zoneList.add(new Zone(1, "4,3", 123456, 23456));
-		zoneList.add(new Zone(2, "5,1", 123456, 23456));
-		zoneList.add(new Zone(3, "1,4", 123456, 23456));
-		zoneList.add(new Zone(4, "5,1", 123456, 23456));
-		zoneList.add(new Zone(5, "3,4", 123456, 23456));
+	@Autowired
+	public ScheduleRepository scheduleRepository;
+
+	@Autowired
+	public ZoneRepository zoneRepository;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	public void process() throws Exception {
+
+		// Get Unassigned Users by Priority
+		List<UserModel> unassignedUsers = getUsersOrderBySeverity();
+
+		// Get Unassigned Events by Priority
+		List<EventModel> unassignedEvents = getEventsOrderBySeverity();
+
+		// Get List of Zones
+		Map<Integer, ZoneModel> zoneMap = getZoneMap();
+
+		// Both should be NON-EMPTY
+		if (!unassignedEvents.isEmpty() && !unassignedUsers.isEmpty()) {
+			unassignedEvents.stream().forEach(event -> {
+				scheduleEvent(event, zoneMap);
+			});
+		}
 	}
 
-	public void scheduleEvent(EventModel event) {
-		int noOfUsers = 10;
-		Zone nearByZone = distanceZoneToEvent(event);
-		scheduleUsers(nearByZone, noOfUsers, event);
+	public void scheduleEvent(EventModel event, Map<Integer, ZoneModel> zoneMap) {
+		ZoneModel nearByZone = distanceZoneToEvent(event, zoneMap);
+		scheduleUsers(nearByZone, event.getNumberOfWorkersRequired(), event, zoneMap);
 	}
 
-	private void scheduleUsers(Zone zone, int noOfUsers, EventModel event) {
-		if (getNoOfAvailableUsersInZone(zone.getZoneId()) >= noOfUsers) {
+	private void scheduleUsers(ZoneModel zone, int noOfUsers, EventModel event, Map<Integer, ZoneModel> zoneMap) {
+		if (getNoOfAvailableUsersInZone(zone.getId()) >= noOfUsers) {
 			allocateUsersToEvent(event, zone, noOfUsers);
 		} else {
-			int noOfAvailableUsersInZone = getNoOfAvailableUsersInZone(zone.getZoneId());
+			int noOfAvailableUsersInZone = getNoOfAvailableUsersInZone(zone.getId());
 			allocateUsersToEvent(event, zone, noOfAvailableUsersInZone);
 			noOfUsers = noOfUsers - noOfAvailableUsersInZone;
-			List<String> nearZones = Arrays.asList(zone.getNearByZones().split(","));
-			for (String z : nearZones) {
-				Zone nextNearestZone = getZoneById(Integer.parseInt(z));
+			List<Integer> nearZones = zone.getNearByZones();
+			for (Integer z : nearZones) {
 				if (noOfUsers <= 0) {
 					break;
 				}
-				allocateUsersToEvent(event, nextNearestZone, noOfUsers);
-				noOfUsers = noOfUsers - nextNearestZone.getZoneId();
+				noOfAvailableUsersInZone = getNoOfAvailableUsersInZone(z);
+				allocateUsersToEvent(event, zoneMap.get(z), noOfAvailableUsersInZone);
+				noOfUsers = noOfUsers - noOfAvailableUsersInZone;
 			}
 		}
 	}
 
 	private int getNoOfAvailableUsersInZone(int zoneId) {
-		// TODO Auto-generated method stub
-		// DAO call to get number of available users in the zone
-		return userZoneMap.get(zoneId);
+		return (int) userRepository.findByStatusAndZoneId(UserWorkStatusEnum.UNASSIGNED, zoneId).stream().distinct().count();
 	}
 
-	private Zone getZoneById(int zoneId) {
-		// TODO Query DAO to get the zone object
-		Zone zone = null;
-		for (Zone z : zoneList) {
-			if (z.getZoneId() == zoneId) {
-				zone = z;
-				break;
-			}
-		}
-		return zone;
-	}
-
-	private void allocateUsersToEvent(EventModel event, Zone zone, int noOfUsers) {
+	private void allocateUsersToEvent(EventModel event, ZoneModel zone, int noOfUsers) {
 		// TODO - Persist in EventSchedule Table DAO Call
 		// getUsersByZone(); - Available users
 		// persistEventScheduleWithUserList
@@ -81,24 +94,35 @@ public class EventSchedulerEngine {
 		 */
 	}
 
-	private Zone distanceZoneToEvent(EventModel event) {
+	private ZoneModel distanceZoneToEvent(EventModel event, Map<Integer, ZoneModel> availableZones) {
 		double distanceInKm = 0;
 		double min = Double.MAX_VALUE;
-		Zone nearestZone = null;
-		for (Zone zone : zoneList) {
-			distanceInKm = EventSchedulerUtil.distanceBetweenZones(event.getLatitude(), event.getLongitude(), zone.getLattitude(), zone.getLongitude());
+		ZoneModel nearestZone = null;
+
+		for (Map.Entry<Integer, ZoneModel> zone : availableZones.entrySet()) {
+			ZoneModel eventZone = zoneRepository.findById(event.getZoneId());
+			distanceInKm = EventSchedulerUtil.distanceBetweenZones(eventZone.getLattitude(), eventZone.getLongitude(), zone.getValue().getLattitude(), zone.getValue().getLongitude());
 			if (distanceInKm < min) {
 				min = distanceInKm;
-				nearestZone = zone;
+				nearestZone = zone.getValue();
 			}
 		}
+
 		return nearestZone;
 	}
 
-	public static void main(String[] args) {
-		EventModel event = new EventModel();
-		event.setLatitude(62535463);
-		event.setLatitude(85978555);
-		new EventSchedulerEngine().scheduleEvent(event);
+	private List<UserModel> getUsersOrderBySeverity() {
+		// TODO: Sorting based on Sev
+		return userRepository.findByStatus(UserWorkStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, UserModel.class)).collect(Collectors.toList());
 	}
+
+	private List<EventModel> getEventsOrderBySeverity() {
+		// TODO: Sorting based on Sev
+		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class)).collect(Collectors.toList());
+	}
+
+	private Map<Integer, ZoneModel> getZoneMap() {
+		return zoneRepository.findAll().stream().collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
+	}
+
 }

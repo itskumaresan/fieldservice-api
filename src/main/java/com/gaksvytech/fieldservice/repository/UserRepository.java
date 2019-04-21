@@ -14,9 +14,11 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
 	Optional<Users> findById(Long id);
 
-	Optional<Users> findByZoneId(Long zoneId);
+	List<Users> findByZoneId(Long zoneId);
 
 	List<Users> findByStatus(UserWorkStatusEnum status);
+
+	List<Users> findByStatusAndZoneId(UserWorkStatusEnum status, Integer zoneId);
 
 	@SuppressWarnings("unchecked")
 	Users save(Users entity);

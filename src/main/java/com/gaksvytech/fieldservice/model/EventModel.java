@@ -25,8 +25,7 @@ public class EventModel {
 	private EventPriorityEnum priority;
 	private EventSeverityEnum severity;
 	private ActiveFlagEnum active;
-	private double latitude;
-	private double longitude;
 	private Date startDate;
 	private Date endDate;
+	private int numberOfWorkersRequired;
 }

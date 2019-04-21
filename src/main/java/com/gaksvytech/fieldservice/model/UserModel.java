@@ -23,6 +23,4 @@ public class UserModel {
 	private UserRoleEnum role;
 	private UserWorkStatusEnum status;
 	private ActiveFlagEnum active;
-	private String latitude;
-	private String longitude;
 }

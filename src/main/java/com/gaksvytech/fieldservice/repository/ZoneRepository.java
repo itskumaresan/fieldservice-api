@@ -20,12 +20,12 @@ public class ZoneRepository {
 		zones.add(new ZoneModel(5, "South", 123456, 56789, Arrays.asList(2, 3, 4, 5)));
 	}
 
-	public List<ZoneModel> getZones() {
+	public List<ZoneModel> findAll() {
 		return zones;
 	}
 
-	public ZoneModel getZoneById(int id) {
-		return zones.stream().filter(zone -> zone.getZoneId() == id).findFirst().get();
+	public ZoneModel findById(int id) {
+		return zones.stream().filter(zone -> zone.getId() == id).findFirst().get();
 	}
 
 }
