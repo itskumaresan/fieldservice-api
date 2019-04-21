@@ -16,7 +16,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.EventPriorityEnum;
 import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 
@@ -46,9 +45,6 @@ public class Events {
 
 	@Enumerated(EnumType.STRING)
 	private EventStatusEnum status;
-
-	@Enumerated(EnumType.STRING)
-	private EventPriorityEnum priority;
 
 	@Enumerated(EnumType.STRING)
 	private EventSeverityEnum severity;

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.EventPriorityEnum;
 import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 
@@ -24,7 +23,6 @@ public class EventModelUI {
 	private int zoneId;
 	private String name;
 	private EventStatusEnum status;
-	private EventPriorityEnum priority;
 	private EventSeverityEnum severity;
 	private ActiveFlagEnum active;
 	private Date startDate;

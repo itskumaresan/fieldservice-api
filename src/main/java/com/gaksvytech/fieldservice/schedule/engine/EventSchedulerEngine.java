@@ -18,6 +18,7 @@ import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
+import com.gaksvytech.fieldservice.utils.EventModelComparator;
 
 @Service
 public class EventSchedulerEngine {
@@ -39,10 +40,10 @@ public class EventSchedulerEngine {
 
 	public void process() throws Exception {
 
-		// Get Unassigned Users by Priority
-		List<UserModel> unassignedUsers = getUsersOrderBySeverity();
+		// Get Unassigned Users
+		List<UserModel> unassignedUsers = getUsers();
 
-		// Get Unassigned Events by Priority
+		// Get Unassigned Events Order by Priority
 		List<EventModel> unassignedEvents = getEventsOrderBySeverity();
 
 		// Get List of Zones
@@ -111,14 +112,12 @@ public class EventSchedulerEngine {
 		return nearestZone;
 	}
 
-	private List<UserModel> getUsersOrderBySeverity() {
-		// TODO: Sorting based on Sev
+	private List<UserModel> getUsers() {
 		return userRepository.findByStatus(UserWorkStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, UserModel.class)).collect(Collectors.toList());
 	}
 
 	private List<EventModel> getEventsOrderBySeverity() {
-		// TODO: Sorting based on Sev
-		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class)).collect(Collectors.toList());
+		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class)).sorted(new EventModelComparator()).collect(Collectors.toList());
 	}
 
 	private Map<Integer, ZoneModel> getZoneMap() {
