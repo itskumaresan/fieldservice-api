@@ -18,8 +18,6 @@ public interface EventRepository extends JpaRepository<Events, Long> {
 
 	List<Events> findByStatus(EventStatusEnum status);
 
-	List<Events> findByName(String username);
-
 	@SuppressWarnings("unchecked")
 	Events save(Events entity);
 

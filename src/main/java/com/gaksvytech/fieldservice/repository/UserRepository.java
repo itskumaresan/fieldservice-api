@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Users;
 
 public interface UserRepository extends JpaRepository<Users, Long> {
@@ -16,9 +15,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
 	List<Users> findByZoneId(Long zoneId);
 
-	List<Users> findByStatus(UserWorkStatusEnum status);
-
-	List<Users> findByStatusAndZoneId(UserWorkStatusEnum status, Integer zoneId);
+	List<Users> findByZoneId(Integer zoneId);
 
 	@SuppressWarnings("unchecked")
 	Users save(Users entity);

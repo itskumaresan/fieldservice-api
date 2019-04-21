@@ -57,9 +57,6 @@ public class Users {
 	private UserRoleEnum role;
 
 	@Enumerated(EnumType.STRING)
-	private UserWorkStatusEnum status;
-
-	@Enumerated(EnumType.STRING)
 	private ActiveFlagEnum active;
 
 	@CreationTimestamp

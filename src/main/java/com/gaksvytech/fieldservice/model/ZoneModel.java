@@ -18,7 +18,7 @@ import lombok.ToString;
 public class ZoneModel {
 
 	private int id;
-	private String name; // East, West, North South
+	private String name; // East, West, North, South, Central
 
 	private double lattitude;
 	private double longitude;

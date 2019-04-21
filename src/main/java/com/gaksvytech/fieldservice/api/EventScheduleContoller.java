@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.gaksvytech.fieldservice.schedule.engine.EventSchedulerEngine;
+import com.gaksvytech.fieldservice.scheduler.EventSchedulerEngine;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,7 +24,8 @@ public class EventScheduleContoller {
 	@ApiOperation(value = "To run the batch", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Batch ran successfully") })
 	@PostMapping("")
-	public ResponseEntity<String> read() {
+	public ResponseEntity<String> read() throws Exception {
+		eventSchedulerEngine.process();
 		return ResponseEntity.ok("Success");
 	}
 

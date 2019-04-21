@@ -1,5 +1,8 @@
-package com.gaksvytech.fieldservice.schedule.engine;
+package com.gaksvytech.fieldservice.scheduler;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,6 +22,7 @@ import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
 import com.gaksvytech.fieldservice.utils.EventModelComparator;
+import com.gaksvytech.fieldservice.utils.Utils;
 
 @Service
 public class EventSchedulerEngine {
@@ -40,21 +44,36 @@ public class EventSchedulerEngine {
 
 	public void process() throws Exception {
 
-		// Get Unassigned Users
-		List<UserModel> unassignedUsers = getUsers();
+		// Prepare the schedule staring today and till next one week
+		Calendar cal = Calendar.getInstance();
+		int toDate = cal.get(Calendar.DAY_OF_MONTH) + 7;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		while (toDate > cal.get(Calendar.DAY_OF_MONTH)) {
+			Date scheduleDate = cal.getTime();
+			System.out.println("Schedule for " + sdf.format(scheduleDate));
 
-		// Get Unassigned Events Order by Priority
-		List<EventModel> unassignedEvents = getEventsOrderBySeverity();
+			// Get Unassigned Users for a given date
+			List<UserModel> unassignedUsers = getUsers(scheduleDate);
+			System.out.println("unassignedUsers for scheduleDate [" + scheduleDate + "] is " + unassignedUsers);
 
-		// Get List of Zones
-		Map<Integer, ZoneModel> zoneMap = getZoneMap();
+			// Get Unassigned Events Order by Priority for a given date
+			List<EventModel> unassignedEvents = getEventsOrderBySeverity(scheduleDate);
+			System.out.println("unassignedEvents for scheduleDate [" + scheduleDate + "] is " + unassignedEvents);
 
-		// Both should be NON-EMPTY
-		if (!unassignedEvents.isEmpty() && !unassignedUsers.isEmpty()) {
-			unassignedEvents.stream().forEach(event -> {
-				scheduleEvent(event, zoneMap);
-			});
+			// Get List of Zones
+			Map<Integer, ZoneModel> zoneMap = getZoneMap();
+
+			// Both should be NON-EMPTY
+			if (!unassignedEvents.isEmpty() && !unassignedUsers.isEmpty()) {
+				unassignedEvents.stream().forEach(event -> {
+					scheduleEvent(event, zoneMap);
+				});
+			}
+
+			// Add One day and iterate again
+			cal.add(Calendar.DAY_OF_MONTH, 1);
 		}
+
 	}
 
 	public void scheduleEvent(EventModel event, Map<Integer, ZoneModel> zoneMap) {
@@ -82,7 +101,7 @@ public class EventSchedulerEngine {
 	}
 
 	private int getNoOfAvailableUsersInZone(int zoneId) {
-		return (int) userRepository.findByStatusAndZoneId(UserWorkStatusEnum.UNASSIGNED, zoneId).stream().distinct().count();
+		return (int) userRepository.findByZoneId(zoneId).stream().distinct().count();
 	}
 
 	private void allocateUsersToEvent(EventModel event, ZoneModel zone, int noOfUsers) {
@@ -102,7 +121,7 @@ public class EventSchedulerEngine {
 
 		for (Map.Entry<Integer, ZoneModel> zone : availableZones.entrySet()) {
 			ZoneModel eventZone = zoneRepository.findById(event.getZoneId());
-			distanceInKm = EventSchedulerUtil.distanceBetweenZones(eventZone.getLattitude(), eventZone.getLongitude(), zone.getValue().getLattitude(), zone.getValue().getLongitude());
+			distanceInKm = Utils.distanceBetweenZones(eventZone.getLattitude(), eventZone.getLongitude(), zone.getValue().getLattitude(), zone.getValue().getLongitude());
 			if (distanceInKm < min) {
 				min = distanceInKm;
 				nearestZone = zone.getValue();
@@ -112,12 +131,14 @@ public class EventSchedulerEngine {
 		return nearestZone;
 	}
 
-	private List<UserModel> getUsers() {
-		return userRepository.findByStatus(UserWorkStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, UserModel.class)).collect(Collectors.toList());
+	private List<UserModel> getUsers(Date scheduleDate) {
+		return userRepository.findAll().stream().distinct().map(event -> modelMapper.map(event, UserModel.class)).filter(event -> !event.getStartDate().before(scheduleDate) && !event.getStartDate().after(scheduleDate))
+				.collect(Collectors.toList());
 	}
 
-	private List<EventModel> getEventsOrderBySeverity() {
-		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class)).sorted(new EventModelComparator()).collect(Collectors.toList());
+	private List<EventModel> getEventsOrderBySeverity(Date scheduleDate) {
+		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class))
+				.filter(event -> !event.getStartDate().before(scheduleDate) && !event.getStartDate().after(scheduleDate)).sorted(new EventModelComparator()).collect(Collectors.toList());
 	}
 
 	private Map<Integer, ZoneModel> getZoneMap() {

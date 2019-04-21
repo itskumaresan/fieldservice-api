@@ -79,7 +79,6 @@ public class UserContoller {
 	public ResponseEntity<UserModelUI> create(@RequestBody UserModel workforceModel) throws URISyntaxException {
 		Users user = convertToEntity(workforceModel);
 		user.setActive(ActiveFlagEnum.Y);
-		user.setStatus(UserWorkStatusEnum.UNASSIGNED);
 		Users saved = userRepository.save(user);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(saved.getId()).toUri();
 		return ResponseEntity.created(uri).body(convertToModelUI(saved));
@@ -95,26 +94,6 @@ public class UserContoller {
 		} else {
 			Users user = convertToEntity(workforceModel);
 			user.setId(id);
-			Users saved = userRepository.save(user);
-			if (saved == null) {
-				return ResponseEntity.notFound().build();
-			} else {
-				return ResponseEntity.ok(convertToModelUI(saved));
-			}
-		}
-	}
-
-	@ApiOperation(value = "Update a User with the provided status", response = UserModelUI.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the User with provided status"),
-			@ApiResponse(code = 404, message = "Unable to retrieve the User By Id. The Id does not exists. Update unsuccessfull") })
-	@PutMapping("{id}/{toStatus}")
-	public ResponseEntity<UserModelUI> updateStatus(@PathVariable Long id, @PathVariable UserWorkStatusEnum toStatus) {
-		Optional<Users> workForceOptional = userRepository.findById(id);
-		if (!workForceOptional.isPresent()) {
-			return ResponseEntity.notFound().build();
-		} else {
-			Users user = workForceOptional.get();
-			user.setStatus(toStatus);
 			Users saved = userRepository.save(user);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();

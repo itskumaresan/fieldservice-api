@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Schedules;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
@@ -50,6 +52,26 @@ public class ScheduleContoller {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
+	}
+
+	@ApiOperation(value = "Update a Schedule with the provided status", response = ScheduleModelUI.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the Schedule with provided status"),
+			@ApiResponse(code = 404, message = "Unable to retrieve the Schedule By Id. The Id does not exists. Update unsuccessfull") })
+	@PutMapping("{id}/{toStatus}")
+	public ResponseEntity<ScheduleModelUI> updateStatus(@PathVariable Long id, @PathVariable UserWorkStatusEnum toStatus) {
+		Optional<Schedules> workForceOptional = eventScheduleRepository.findById(id);
+		if (!workForceOptional.isPresent()) {
+			return ResponseEntity.notFound().build();
+		} else {
+			Schedules schedules = workForceOptional.get();
+			schedules.setStatus(toStatus);
+			Schedules saved = eventScheduleRepository.save(schedules);
+			if (saved == null) {
+				return ResponseEntity.notFound().build();
+			} else {
+				return ResponseEntity.ok(convertToModelUI(saved));
+			}
+		}
 	}
 
 	private ScheduleModelUI convertToModelUI(Schedules schedules) {

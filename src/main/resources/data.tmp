@@ -1,0 +1,12 @@
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10000,20001,30001,PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10001,20001,30002,PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10002,20002,30001,PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10003,20002,30000,PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10004,20003,30000,PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
+values (10005,20003,30000,PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));

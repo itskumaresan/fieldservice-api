@@ -1,10 +1,10 @@
 package com.gaksvytech.fieldservice.model;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
+import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,9 +24,10 @@ public class UserModelUI {
 	private String password;
 	private String email;
 	private UserRoleEnum role;
-	private UserWorkStatusEnum status;
 	private ActiveFlagEnum active;
 	private LocalDateTime created;
 	private LocalDateTime updated;
 	private ZoneModel zone;
+	private Date startDate;
+	private Date endDate;
 }

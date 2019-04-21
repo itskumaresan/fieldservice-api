@@ -1,8 +1,9 @@
 package com.gaksvytech.fieldservice.model;
 
+import java.util.Date;
+
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class UserModel {
 	private String password;
 	private String email;
 	private UserRoleEnum role;
-	private UserWorkStatusEnum status;
 	private ActiveFlagEnum active;
+	private Date startDate;
+	private Date endDate;
 }
