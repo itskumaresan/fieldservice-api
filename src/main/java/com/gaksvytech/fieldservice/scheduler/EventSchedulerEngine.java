@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.EventModel;
 import com.gaksvytech.fieldservice.model.UserModel;
 import com.gaksvytech.fieldservice.model.ZoneModel;
