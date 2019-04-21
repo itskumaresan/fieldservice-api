@@ -39,7 +39,7 @@ public class Events {
 	@GeneratedValue
 	private long id;
 
-	private long zoneId;
+	private int zoneId;
 
 	private String name;
 

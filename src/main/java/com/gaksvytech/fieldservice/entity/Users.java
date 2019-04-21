@@ -17,7 +17,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -39,7 +38,7 @@ public class Users {
 	@GeneratedValue
 	private long id;
 
-	private long zoneId;
+	private int zoneId;
 
 	private String name;
 

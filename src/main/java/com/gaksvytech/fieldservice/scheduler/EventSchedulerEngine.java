@@ -66,6 +66,7 @@ public class EventSchedulerEngine {
 			// Both should be NON-EMPTY
 			if (!unassignedEvents.isEmpty() && !unassignedUsers.isEmpty()) {
 				unassignedEvents.stream().forEach(event -> {
+					System.out.println("Scheduling for " + scheduleDate);
 					scheduleEvent(event, zoneMap);
 				});
 			}
@@ -132,15 +133,37 @@ public class EventSchedulerEngine {
 	}
 
 	private List<UserModel> getUsers(Date scheduleDate) {
-		return userRepository.findAll().stream().distinct().map(event -> modelMapper.map(event, UserModel.class)).filter(event -> !event.getStartDate().before(scheduleDate) && !event.getStartDate().after(scheduleDate))
+		
+		return userRepository
+				.findAll()
+				.stream()
+				.map(event -> modelMapper.map(event, UserModel.class))
+				.filter(event -> betweenInclusive(scheduleDate, event.getStartDate(), event.getEndDate()))
+				.collect(Collectors.toList());
+	}
+	
+	private List<EventModel> getEventsOrderBySeverity(Date scheduleDate) {
+		return eventRepository
+				.findByStatus(EventStatusEnum.UNASSIGNED)
+				.stream()
+				.map(event -> modelMapper.map(event, EventModel.class))
+				.filter(event -> betweenInclusive(scheduleDate, event.getStartDate(), event.getEndDate()))
+				.sorted(new EventModelComparator())
 				.collect(Collectors.toList());
 	}
 
-	private List<EventModel> getEventsOrderBySeverity(Date scheduleDate) {
-		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().distinct().map(event -> modelMapper.map(event, EventModel.class))
-				.filter(event -> !event.getStartDate().before(scheduleDate) && !event.getStartDate().after(scheduleDate)).sorted(new EventModelComparator()).collect(Collectors.toList());
-	}
+	private boolean betweenInclusive(Date date, Date dateStart, Date dateEnd) {
+		
+		if (date != null && dateStart != null && dateEnd != null) {
+			if ((date.equals(dateStart) || date.after(dateStart)) && (date.equals(dateEnd) || date.before(dateEnd))) {
+				return true;
+			}
+			return false;
+		}
+		return false;
 
+	}
+	
 	private Map<Integer, ZoneModel> getZoneMap() {
 		return zoneRepository.findAll().stream().collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
 	}
