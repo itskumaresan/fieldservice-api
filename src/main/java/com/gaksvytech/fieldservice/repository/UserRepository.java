@@ -13,8 +13,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
 	Optional<Users> findById(Long id);
 
-	List<Users> findByZoneId(Long zoneId);
-
 	List<Users> findByZoneId(Integer zoneId);
 
 	@SuppressWarnings("unchecked")

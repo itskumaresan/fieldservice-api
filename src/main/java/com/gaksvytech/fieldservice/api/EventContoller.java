@@ -70,7 +70,7 @@ public class EventContoller {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Event By Given Zone Id"),
 			@ApiResponse(code = 404, message = "Unable to retrieve the Event By Zone Id. The Id does not exists") })
 	@GetMapping("zones/{zoneId}")
-	public ResponseEntity<List<EventModelUI>> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+	public ResponseEntity<List<EventModelUI>> readByZoneId(@PathVariable("zoneId") int zoneId) {
 		return ResponseEntity.ok(eventRepository.findByZoneId(zoneId).stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 

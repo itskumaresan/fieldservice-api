@@ -2,6 +2,7 @@ package com.gaksvytech.fieldservice.api;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,12 +47,10 @@ public class ScheduleContoller {
 	@ApiOperation(value = "View a Schedule By Date", response = ScheduleModelUI.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Schedule for Given Date"), @ApiResponse(code = 404, message = "Unable to retrieve the Schedule for the given date") })
 	@GetMapping("{date}")
-	public ResponseEntity<ScheduleModelUI> read(@PathVariable("id") String scheduleDate) throws ParseException {
-		Optional<Schedules> workForceOptional = eventScheduleRepository.findByScheduleDate(new SimpleDateFormat("yyyy-MM-dd").parse(scheduleDate));
-		if (!workForceOptional.isPresent()) {
-			return ResponseEntity.notFound().build();
-		}
-		return ResponseEntity.ok(convertToModelUI(workForceOptional.get()));
+	public ResponseEntity<List<ScheduleModelUI>> read(@PathVariable("id") String scheduleDate) throws ParseException {
+		Date scheduledDate = new SimpleDateFormat("yyyy-MM-dd").parse(scheduleDate);
+		return ResponseEntity.ok(eventScheduleRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).filter(schedule -> on(scheduledDate, schedule.getScheduleDate())).collect(Collectors.toList()));
+
 	}
 
 	@ApiOperation(value = "Update a Schedule with the provided status", response = ScheduleModelUI.class)
@@ -72,6 +71,20 @@ public class ScheduleContoller {
 				return ResponseEntity.ok(convertToModelUI(saved));
 			}
 		}
+	}
+
+	private boolean on(Date fromDate, Date toDate) {
+
+		boolean returnStatus = false;
+		if (fromDate != null && toDate != null) {
+			if (fromDate.equals(toDate)) {
+				returnStatus = true;
+			}
+		}
+
+		System.out.println("fromDate[" + fromDate + "] toDate[" + toDate + "] is [[" + returnStatus + "]]");
+
+		return returnStatus;
 	}
 
 	private ScheduleModelUI convertToModelUI(Schedules schedules) {

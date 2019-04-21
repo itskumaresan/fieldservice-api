@@ -69,7 +69,7 @@ public class UserContoller {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved the Users By Given Zone Id"),
 			@ApiResponse(code = 404, message = "Unable to retrieve the Users By Zone Id. The Id does not exists") })
 	@GetMapping("zones/{zoneId}")
-	public ResponseEntity<List<UserModelUI>> readByZoneId(@PathVariable("zoneId") Long zoneId) {
+	public ResponseEntity<List<UserModelUI>> readByZoneId(@PathVariable("zoneId") int zoneId) {
 		return ResponseEntity.ok(userRepository.findByZoneId(zoneId).stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
