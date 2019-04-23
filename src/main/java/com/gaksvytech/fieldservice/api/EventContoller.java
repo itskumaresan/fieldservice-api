@@ -20,11 +20,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
+import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
+import com.gaksvytech.fieldservice.entity.Schedules;
+import com.gaksvytech.fieldservice.entity.Users;
 import com.gaksvytech.fieldservice.model.EventModel;
 import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
+import com.gaksvytech.fieldservice.repository.ScheduleRepository;
+import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
 import io.swagger.annotations.Api;
@@ -45,6 +50,12 @@ public class EventContoller {
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	public UserRepository userRepository;
+	
+	@Autowired
+	public ScheduleRepository scheduleRepository;
 
 	@ApiOperation(value = "View a list of Event(s)", response = EventModelUI.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list") })
@@ -86,7 +97,7 @@ public class EventContoller {
 		return ResponseEntity.created(uri).body(convertToModelUI(saved));
 	}
 
-	@ApiOperation(value = "Update a Work Force", response = EventModelUI.class)
+	@ApiOperation(value = "Update a Event", response = EventModelUI.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated the Event"), @ApiResponse(code = 404, message = "Unable to retrieve the Event By Id. The Id does not exists. Update unsuccessfull") })
 	@PutMapping("{id}")
 	public ResponseEntity<EventModelUI> update(@RequestBody EventModel workforceModel, @PathVariable Long id) {
@@ -94,9 +105,12 @@ public class EventContoller {
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
-			Events user = convertToEntity(workforceModel);
-			user.setId(id);
-			Events saved = eventRepository.save(user);
+			Events event = convertToEntity(workforceModel);
+			event.setId(id);
+			/*if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
+				updateUsersSchedule(event);
+			}*/
+			Events saved = eventRepository.save(event);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();
 			} else {
@@ -114,13 +128,31 @@ public class EventContoller {
 		if (!workForceOptional.isPresent()) {
 			return ResponseEntity.notFound().build();
 		} else {
-			Events user = workForceOptional.get();
-			user.setStatus(toStatus);
-			Events saved = eventRepository.save(user);
+			Events event = workForceOptional.get();
+			event.setStatus(toStatus);
+			if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
+				updateUsersSchedule(event);
+			}
+			Events saved = eventRepository.save(event);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();
 			} else {
 				return ResponseEntity.ok(convertToModelUI(saved));
+			}
+		}
+	}
+	
+	private void updateUsersSchedule(Events event) {
+		event.setActive(ActiveFlagEnum.N);
+		for(Schedules schd: scheduleRepository.findByEventId(event.getId())) {
+			long userId = schd.getUserId();
+			schd.setStatus(UserWorkStatusEnum.COMPLETED);
+			scheduleRepository.save(schd);
+			Optional<Users> userOptional = userRepository.findById(userId);
+			if(userOptional.isPresent()) {
+				Users user = userOptional.get();
+				user.setActive(ActiveFlagEnum.N);
+				userRepository.save(user);
 			}
 		}
 	}

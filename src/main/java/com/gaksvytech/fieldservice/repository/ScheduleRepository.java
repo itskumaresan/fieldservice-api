@@ -9,6 +9,8 @@ import com.gaksvytech.fieldservice.entity.Schedules;
 public interface ScheduleRepository extends JpaRepository<Schedules, Long> {
 
 	List<Schedules> findAll();
+	
+	List<Schedules> findByEventId(Long eventId);
 
 	@SuppressWarnings("unchecked")
 	Schedules save(Schedules entity);
