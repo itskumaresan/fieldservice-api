@@ -1,6 +1,8 @@
 package com.gaksvytech.fieldservice.scheduler;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
@@ -98,14 +99,25 @@ public class EventSchedulerEngine {
 		totalUsersRequiredByEvent = event.getNumberOfWorkersRequired();
 
 		// Get Scheduled Users for ZoneId and Give Date
-		allocatedUsersForScheduleDate = scheduleRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).filter(schedule -> on(scheduleDate, schedule.getScheduleDate())).collect(Collectors.toList());
+		allocatedUsersForScheduleDate = scheduleRepository
+				.findAll()
+				.stream()
+				.map(workForce -> convertToModelUI(workForce))
+				.filter(schedule -> on(scheduleDate, schedule.getScheduleDate()))
+				.collect(Collectors.toList());
+		
 		totalUsersToBeAssignedForScheduleDate = totalUsersRequiredByEvent - allocatedUsersForScheduleDate.size();
 
-		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate.stream().collect(Collectors.toMap(ScheduleModelUI::getId, Function.identity()));
+		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate
+				.stream()
+				.collect(Collectors.toMap(ScheduleModelUI::getId, Function.identity()));
 
-		// Get All User for Given Date and filter with above scheduled users
-		totalUnassignedUsersInZoneForScheduleDate = userRepository.findAll().stream().map(user -> modelMapper.map(user, UserModelUI.class))
-				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate())).filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
+		// Get All User for Given Date and Zone Id and filter with above scheduled users
+		totalUnassignedUsersInZoneForScheduleDate = userRepository.findByZoneId(zoneId)
+				.stream()
+				.map(user -> modelMapper.map(user, UserModelUI.class))
+				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate()))
+				.filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
 
 	}
 
@@ -131,6 +143,7 @@ public class EventSchedulerEngine {
 		// Update the Event Status
 		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
 		// When the event is getting scheduled (scheduled users = noOfUsersRequired)
+		initialize(event, zone.getId(), scheduleDate);
 		updateEventStatus(event.getId());
 	}
 
@@ -188,14 +201,25 @@ public class EventSchedulerEngine {
 		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
 		// Sort by Severity(EventSeverityEnum)
 
-		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().map(event -> modelMapper.map(event, EventModelUI.class))
-				.filter(event -> betweenInclusive(scheduleDate, event.getStartDate(), event.getEndDate()))
+		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().map(event -> modelMapper.map(event, EventModelUI.class)).filter(event -> on(scheduleDate, event.getStartDate()))
 				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING).sorted(new EventModelUIComparator()).collect(Collectors.toList());
 	}
 
 	private boolean betweenInclusive(Date scheduleDate, Date dateStart, Date dateEnd) {
 
 		boolean returnStatus = false;
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			scheduleDate = sdf.parse(sdf.format(scheduleDate));
+			dateStart = sdf.parse(sdf.format(dateStart));
+			dateEnd = sdf.parse(sdf.format(dateEnd));
+		} catch (Exception e) {
+			scheduleDate = null;
+			dateStart = null;
+			dateEnd = null;
+		}
+
 		if (scheduleDate != null && dateStart != null && dateEnd != null) {
 			if ((scheduleDate.equals(dateStart) || scheduleDate.after(dateStart)) && (scheduleDate.equals(dateEnd) || scheduleDate.before(dateEnd))) {
 				returnStatus = true;
@@ -209,6 +233,14 @@ public class EventSchedulerEngine {
 
 	private boolean on(Date fromDate, Date toDate) {
 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			fromDate = sdf.parse(sdf.format(fromDate));
+			toDate = sdf.parse(sdf.format(toDate));
+		} catch (Exception e) {
+			fromDate = null;
+			toDate = null;
+		}
 		boolean returnStatus = false;
 		if (fromDate != null && toDate != null) {
 			if (fromDate.equals(toDate)) {

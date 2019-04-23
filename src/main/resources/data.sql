@@ -1,15 +1,15 @@
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
 values (20001, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), 1, 'Event1', 'CRITICAL', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 5, 'UNASSIGNED');
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
-values (20002, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), 2, 'Event2', 'MODERATE', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 2, 'UNASSIGNED');
+values (20002, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), 2, 'Event2', 'MODERATE', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 4, 'UNASSIGNED');
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
-values (20003, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('25 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), 3, 'Event3', 'MAJOR', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 1, 'UNASSIGNED');
+values (20003, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), 3, 'Event3', 'MAJOR', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 3, 'UNASSIGNED');
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
-values (20004, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), 4, 'Event4', 'CRITICAL', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 10, 'UNASSIGNED');
+values (20004, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('27 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('27 Apr 2019','dd MMM yyyy','en'), 4, 'Event4', 'CRITICAL', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 2, 'UNASSIGNED');
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
-values (20005, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'), 5, 'Event5', 'MODERATE', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 8, 'UNASSIGNED');
+values (20005, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('28 Apr 2019','dd MMM yyyy','en'), 5, 'Event5', 'MODERATE', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 1, 'UNASSIGNED');
 insert into events(ID, ACTIVE, CREATED, START_DATE, END_DATE, ZONE_ID, NAME, SEVERITY, UPDATED, NUMBER_OF_WORKERS_REQUIRED, STATUS) 
-values (20006, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'), 1, 'Event6', 'LOW', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 100, 'UNASSIGNED');
+values (20006, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'), 1, 'Event6', 'LOW', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 1, 'UNASSIGNED');
 
 insert into users(ID, ACTIVE, CREATED, EMAIL, ZONE_ID, NAME, PASSWORD, ROLE, UPDATED, START_DATE, END_DATE) 
 values (30001, 'Y', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), 'aaa@gmail.com', 1, 'User1', 'Test@123', 'WORKER', PARSEDATETIME('21 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('30 Apr 2019','dd MMM yyyy','en'));
