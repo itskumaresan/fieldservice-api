@@ -1,20 +1,24 @@
 package com.gaksvytech.fieldservice.scheduler;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
+import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
 import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
@@ -43,6 +47,13 @@ public class EventSchedulerEngine {
 
 	@Autowired
 	private ModelMapper modelMapper;
+
+	// Initialized by initialize method - starts
+	private List<UserModelUI> totalUnassignedUsersInZoneForScheduleDate = new ArrayList<UserModelUI>();
+	private List<ScheduleModelUI> allocatedUsersForScheduleDate = new ArrayList<ScheduleModelUI>();
+	private int totalUsersRequiredByEvent = 0;
+	private int totalUsersToBeAssignedForScheduleDate = 0;
+	// Initialized by initialize method - ends
 
 	public void process() throws Exception {
 
@@ -75,56 +86,90 @@ public class EventSchedulerEngine {
 
 	}
 
-	public void scheduleEvent(EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
-		scheduleUsers(zoneMap.get(event.getZoneId()), event.getNumberOfWorkersRequired(), event, zoneMap, scheduleDate);
+	// This needs to be called whenever there is change in ZoneId or scheduleDate
+	private void initialize(EventModelUI event, int zoneId, Date scheduleDate) {
+
+		// Reset all the variables
+		totalUnassignedUsersInZoneForScheduleDate = null;
+		allocatedUsersForScheduleDate = null;
+		totalUsersRequiredByEvent = 0;
+		totalUsersToBeAssignedForScheduleDate = 0;
+
+		totalUsersRequiredByEvent = event.getNumberOfWorkersRequired();
+
+		// Get Scheduled Users for ZoneId and Give Date
+		allocatedUsersForScheduleDate = scheduleRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).filter(schedule -> on(scheduleDate, schedule.getScheduleDate())).collect(Collectors.toList());
+		totalUsersToBeAssignedForScheduleDate = totalUsersRequiredByEvent - allocatedUsersForScheduleDate.size();
+
+		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate.stream().collect(Collectors.toMap(ScheduleModelUI::getId, Function.identity()));
+
+		// Get All User for Given Date and filter with above scheduled users
+		totalUnassignedUsersInZoneForScheduleDate = userRepository.findAll().stream().map(user -> modelMapper.map(user, UserModelUI.class))
+				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate())).filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
+
 	}
 
-	private void scheduleUsers(ZoneModel zone, int numberOfWorkersRequired, EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
-		// Get List Of Available Users
-		List<UserModelUI> avilableUsers = getNoOfAvailableUsersInZone(zone.getId(), scheduleDate);
-		if (avilableUsers.isEmpty())
-			return;
+	public void scheduleEvent(EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
+		scheduleUsers(zoneMap.get(event.getZoneId()), event, zoneMap, scheduleDate);
+	}
 
-		if (avilableUsers.size() >= numberOfWorkersRequired) {
-			allocateUsersToEvent(event, zone, numberOfWorkersRequired, avilableUsers, scheduleDate);
+	private void scheduleUsers(ZoneModel zone, EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
+
+		initialize(event, zone.getId(), scheduleDate);
+		if (totalUnassignedUsersInZoneForScheduleDate.isEmpty()) {
+			// Go for NEXT near by zone
+			scheduleUsersToNearByZones(zone, event, scheduleDate, zoneMap);
 		} else {
-			avilableUsers = getNoOfAvailableUsersInZone(zone.getId(), scheduleDate);
-			int noOfAvailableUsersInZone = avilableUsers.size();
-			allocateUsersToEvent(event, zone, noOfAvailableUsersInZone, avilableUsers, scheduleDate);
-			numberOfWorkersRequired = numberOfWorkersRequired - noOfAvailableUsersInZone;
-			List<Integer> nearZones = zone.getNearByZones();
-			for (Integer z : nearZones) {
-				if (numberOfWorkersRequired <= 0) {
-					break;
-				}
-				avilableUsers = getNoOfAvailableUsersInZone(zone.getId(), scheduleDate);
-				if (avilableUsers.isEmpty())
-					return;
-
-				noOfAvailableUsersInZone = avilableUsers.size();
-				allocateUsersToEvent(event, zoneMap.get(z), noOfAvailableUsersInZone, avilableUsers, scheduleDate);
-				numberOfWorkersRequired = numberOfWorkersRequired - noOfAvailableUsersInZone;
+			if (totalUnassignedUsersInZoneForScheduleDate.size() >= totalUsersToBeAssignedForScheduleDate) {
+				allocateUsersToEvent(event, zone, totalUsersToBeAssignedForScheduleDate, scheduleDate);
+			} else {
+				allocateUsersToEvent(event, zone, Math.min(totalUnassignedUsersInZoneForScheduleDate.size(), totalUsersToBeAssignedForScheduleDate), scheduleDate);
+				// Go for NEXT near by zone
+				scheduleUsersToNearByZones(zone, event, scheduleDate, zoneMap);
 			}
+		}
+		// Update the Event Status
+		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
+		// When the event is getting scheduled (scheduled users = noOfUsersRequired)
+		updateEventStatus(event.getId());
+	}
+
+	private void updateEventStatus(long eventId) {
+		Optional<Events> workForceOptional = eventRepository.findById(eventId);
+		if (workForceOptional.isPresent()) {
+			Events user = workForceOptional.get();
+			user.setStatus(totalUsersToBeAssignedForScheduleDate <= 0 ? EventStatusEnum.ASSIGNED : EventStatusEnum.SCHEDULING);
+			eventRepository.save(user);
 		}
 	}
 
-	private List<UserModelUI> getNoOfAvailableUsersInZone(int zoneId, Date scheduleDate) {
-		// Get Scheduled Users for Given Date
-		Map<Long, ScheduleModelUI> scheduledUsersMap = scheduleRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).filter(schedule -> on(scheduleDate, schedule.getScheduleDate()))
-				.collect(Collectors.toMap(ScheduleModelUI::getId, Function.identity()));
+	private void scheduleUsersToNearByZones(ZoneModel zone, EventModelUI event, Date scheduleDate, Map<Integer, ZoneModel> zoneMap) {
+		List<Integer> nearZones = zone.getNearByZones();
+		for (Integer z : nearZones) {
 
-		// Get All User for Given Date and filter with above scheduled users
-		return userRepository.findAll().stream().map(event -> modelMapper.map(event, UserModelUI.class)).filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate()))
-				.filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
+			initialize(event, z, scheduleDate);
+
+			if (totalUsersToBeAssignedForScheduleDate <= 0) {
+				break;
+			}
+
+			if (totalUnassignedUsersInZoneForScheduleDate.isEmpty()) {
+				// Continue to Next Zone
+				continue;
+			}
+			// Allocate the users
+			allocateUsersToEvent(event, zoneMap.get(z), Math.min(totalUnassignedUsersInZoneForScheduleDate.size(), totalUsersToBeAssignedForScheduleDate), scheduleDate);
+		}
 	}
 
-	private void allocateUsersToEvent(EventModelUI event, ZoneModel zone, int noOfUsers, List<UserModelUI> avilableUsers, Date scheduleDate) {
+	private void allocateUsersToEvent(EventModelUI event, ZoneModel zone, int totalUsersToBeAssignedForScheduleDate, Date scheduleDate) {
 
-		for (Iterator<UserModelUI> iterator = avilableUsers.iterator(); iterator.hasNext();) {
+		for (Iterator<UserModelUI> iterator = totalUnassignedUsersInZoneForScheduleDate.iterator(); iterator.hasNext();) {
 			UserModelUI userModelUI = (UserModelUI) iterator.next();
+			// Allocate the User to the Event for the Schedule Date
 			System.out.println("User[" + userModelUI.getId() + "] allocating to event[" + event.getId() + "] for Scheduled Date [" + scheduleDate + "]");
 			scheduleRepository.save(new Schedules(0l, event.getId(), userModelUI.getId(), scheduleDate, UserWorkStatusEnum.ASSIGNED, null, null));
-			if (--noOfUsers == 0) {
+			if (--totalUsersToBeAssignedForScheduleDate == 0) {
 				break;
 			}
 		}
@@ -137,8 +182,15 @@ public class EventSchedulerEngine {
 	}
 
 	private List<EventModelUI> getEventsOrderBySeverity(Date scheduleDate) {
+
+		// Get Only Events with Status UNASSIGNED and SCHEDULING
+		// When the event is created [triggered by Event screen]
+		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
+		// Sort by Severity(EventSeverityEnum)
+
 		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().map(event -> modelMapper.map(event, EventModelUI.class))
-				.filter(event -> betweenInclusive(scheduleDate, event.getStartDate(), event.getEndDate())).sorted(new EventModelUIComparator()).collect(Collectors.toList());
+				.filter(event -> betweenInclusive(scheduleDate, event.getStartDate(), event.getEndDate()))
+				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING).sorted(new EventModelUIComparator()).collect(Collectors.toList());
 	}
 
 	private boolean betweenInclusive(Date scheduleDate, Date dateStart, Date dateEnd) {
