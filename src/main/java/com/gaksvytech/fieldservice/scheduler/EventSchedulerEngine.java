@@ -17,10 +17,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
+import com.gaksvytech.fieldservice.enums.EventStatusEnum;
+import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
 import com.gaksvytech.fieldservice.model.UserModelUI;

@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
+import com.gaksvytech.fieldservice.enums.EventStatusEnum;
 
 public interface EventRepository extends JpaRepository<Events, Long> {
 

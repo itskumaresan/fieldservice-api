@@ -3,8 +3,8 @@ package com.gaksvytech.fieldservice.model;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
+import com.gaksvytech.fieldservice.enums.UserRoleEnum;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
