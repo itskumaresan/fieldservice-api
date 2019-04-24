@@ -1,4 +1,4 @@
-package com.gaksvytech.fieldservice.emuns;
+package com.gaksvytech.fieldservice.enums;
 
 public enum EventSeverityEnum {
 

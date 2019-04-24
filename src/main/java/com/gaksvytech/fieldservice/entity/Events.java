@@ -15,9 +15,9 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
-import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
+import com.gaksvytech.fieldservice.enums.EventSeverityEnum;
+import com.gaksvytech.fieldservice.enums.EventStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

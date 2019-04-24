@@ -3,9 +3,9 @@ package com.gaksvytech.fieldservice.model;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.EventSeverityEnum;
-import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
+import com.gaksvytech.fieldservice.enums.EventSeverityEnum;
+import com.gaksvytech.fieldservice.enums.EventStatusEnum;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

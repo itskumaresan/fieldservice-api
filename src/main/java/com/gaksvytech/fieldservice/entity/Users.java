@@ -15,8 +15,8 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.UserRoleEnum;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
+import com.gaksvytech.fieldservice.enums.UserRoleEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

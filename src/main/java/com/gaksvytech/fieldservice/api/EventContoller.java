@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
-import com.gaksvytech.fieldservice.emuns.EventStatusEnum;
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
 import com.gaksvytech.fieldservice.entity.Users;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
+import com.gaksvytech.fieldservice.enums.EventStatusEnum;
+import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.EventModel;
 import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.UserModelUI;
@@ -50,9 +50,6 @@ public class EventContoller {
 
 	@Autowired
 	private ModelMapper modelMapper;
-	
-	@Autowired
-	public UserRepository userRepository;
 	
 	@Autowired
 	public ScheduleRepository scheduleRepository;
@@ -131,6 +128,7 @@ public class EventContoller {
 			Events event = workForceOptional.get();
 			event.setStatus(toStatus);
 			if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
+				event.setActive(ActiveFlagEnum.N);
 				updateUsersSchedule(event);
 			}
 			Events saved = eventRepository.save(event);
@@ -142,18 +140,10 @@ public class EventContoller {
 		}
 	}
 	
-	private void updateUsersSchedule(Events event) {
-		event.setActive(ActiveFlagEnum.N);
+	private void updateUsersSchedule(Events event) {		
 		for(Schedules schd: scheduleRepository.findByEventId(event.getId())) {
-			long userId = schd.getUserId();
 			schd.setStatus(UserWorkStatusEnum.COMPLETED);
-			scheduleRepository.save(schd);
-			Optional<Users> userOptional = userRepository.findById(userId);
-			if(userOptional.isPresent()) {
-				Users user = userOptional.get();
-				user.setActive(ActiveFlagEnum.N);
-				userRepository.save(user);
-			}
+			scheduleRepository.save(schd);			
 		}
 	}
 

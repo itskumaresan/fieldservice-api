@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.gaksvytech.fieldservice.emuns.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.entity.Users;
+import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.model.UserModel;
 import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.UserRepository;

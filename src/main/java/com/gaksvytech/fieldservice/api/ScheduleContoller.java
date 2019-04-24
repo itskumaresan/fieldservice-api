@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.gaksvytech.fieldservice.emuns.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.entity.Schedules;
+import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 
