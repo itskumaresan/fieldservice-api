@@ -26,4 +26,6 @@ public class EventModel {
 	private Date startDate;
 	private Date endDate;
 	private int numberOfWorkersRequired;
+	private double lattitude;
+	private double longitude;
 }

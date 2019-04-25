@@ -31,4 +31,6 @@ public class EventModelUI {
 	private LocalDateTime updated;
 	private ZoneModel zone;
 	private int numberOfWorkersRequired;
+	private double lattitude;
+	private double longitude;
 }

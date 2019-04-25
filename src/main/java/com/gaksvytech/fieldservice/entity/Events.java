@@ -67,4 +67,6 @@ public class Events {
 	@UpdateTimestamp
 	private LocalDateTime updated;
 
+	private double lattitude;
+	private double longitude;
 }

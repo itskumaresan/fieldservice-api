@@ -30,4 +30,6 @@ public class UserModelUI {
 	private ZoneModel zone;
 	private Date startDate;
 	private Date endDate;
+	private double lattitude;
+	private double longitude;
 }

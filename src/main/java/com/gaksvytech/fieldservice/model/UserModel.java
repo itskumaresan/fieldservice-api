@@ -25,4 +25,6 @@ public class UserModel {
 	private ActiveFlagEnum active;
 	private Date startDate;
 	private Date endDate;
+	private double lattitude;
+	private double longitude;
 }

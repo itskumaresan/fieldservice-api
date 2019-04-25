@@ -20,7 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
-import com.gaksvytech.fieldservice.entity.Users;
 import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.enums.EventStatusEnum;
 import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
@@ -29,7 +28,6 @@ import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
-import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
 
 import io.swagger.annotations.Api;
@@ -50,7 +48,7 @@ public class EventContoller {
 
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	@Autowired
 	public ScheduleRepository scheduleRepository;
 
@@ -104,9 +102,10 @@ public class EventContoller {
 		} else {
 			Events event = convertToEntity(workforceModel);
 			event.setId(id);
-			/*if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
-				updateUsersSchedule(event);
-			}*/
+			/*
+			 * if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
+			 * updateUsersSchedule(event); }
+			 */
 			Events saved = eventRepository.save(event);
 			if (saved == null) {
 				return ResponseEntity.notFound().build();
@@ -127,7 +126,7 @@ public class EventContoller {
 		} else {
 			Events event = workForceOptional.get();
 			event.setStatus(toStatus);
-			if(event.getStatus().equals(EventStatusEnum.COMPLETED)) {
+			if (event.getStatus().equals(EventStatusEnum.COMPLETED)) {
 				event.setActive(ActiveFlagEnum.N);
 				updateUsersSchedule(event);
 			}
@@ -139,11 +138,11 @@ public class EventContoller {
 			}
 		}
 	}
-	
-	private void updateUsersSchedule(Events event) {		
-		for(Schedules schd: scheduleRepository.findByEventId(event.getId())) {
+
+	private void updateUsersSchedule(Events event) {
+		for (Schedules schd : scheduleRepository.findByEventId(event.getId())) {
 			schd.setStatus(UserWorkStatusEnum.COMPLETED);
-			scheduleRepository.save(schd);			
+			scheduleRepository.save(schd);
 		}
 	}
 
@@ -153,8 +152,9 @@ public class EventContoller {
 		return eventModelUI;
 	}
 
-	private Events convertToEntity(EventModel workforceModel) {
-		Events event = modelMapper.map(workforceModel, Events.class);
+	private Events convertToEntity(EventModel eventModel) {
+		Events event = modelMapper.map(eventModel, Events.class);
+		event.setZoneId(zoneRepository.getNearestZoneIdForLatAndLong(eventModel.getLattitude(), eventModel.getLongitude()));
 		return event;
 	}
 }

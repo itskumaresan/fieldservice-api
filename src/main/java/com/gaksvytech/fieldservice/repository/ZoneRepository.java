@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.gaksvytech.fieldservice.model.ZoneModel;
+import com.gaksvytech.fieldservice.utils.Utils;
 
 @Repository
 public class ZoneRepository {
@@ -26,6 +27,21 @@ public class ZoneRepository {
 
 	public ZoneModel findById(int id) {
 		return zones.stream().filter(zone -> zone.getId() == id).findFirst().get();
+	}
+
+	public int getNearestZoneIdForLatAndLong(double lattitude, double longitude) {
+
+		double distanceInKm = 0;
+		double min = Double.MAX_VALUE;
+		int nearestZoneId = 0;
+		for (ZoneModel zone : zones) {
+			distanceInKm = Utils.distanceBetweenZones(zone.getLattitude(), zone.getLongitude(), lattitude, longitude);
+			if (distanceInKm < min) {
+				min = distanceInKm;
+				nearestZoneId = zone.getId();
+			}
+		}
+		return nearestZoneId;
 	}
 
 }

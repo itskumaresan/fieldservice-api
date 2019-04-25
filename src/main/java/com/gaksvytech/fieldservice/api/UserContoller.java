@@ -48,7 +48,6 @@ public class UserContoller {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved list") })
 	@GetMapping("")
 	public ResponseEntity<List<UserModelUI>> read() {
-
 		return ResponseEntity.ok(userRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).collect(Collectors.toList()));
 	}
 
@@ -110,6 +109,7 @@ public class UserContoller {
 
 	private Users convertToEntity(UserModel workforceModel) {
 		Users workForce = modelMapper.map(workforceModel, Users.class);
+		workForce.setZoneId(zoneRepository.getNearestZoneIdForLatAndLong(workforceModel.getLattitude(), workforceModel.getLongitude()));
 		return workForce;
 	}
 }
