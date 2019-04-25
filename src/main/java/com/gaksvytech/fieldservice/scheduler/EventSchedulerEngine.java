@@ -1,8 +1,6 @@
 package com.gaksvytech.fieldservice.scheduler;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -60,9 +58,10 @@ public class EventSchedulerEngine {
 
 		// Prepare the schedule staring today and till next one week
 		Calendar cal = Calendar.getInstance();
-		int toDate = cal.get(Calendar.DAY_OF_MONTH) + 7;
+		Calendar toDate = Calendar.getInstance();
+		toDate.add(Calendar.DAY_OF_MONTH, 7);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		while (toDate > cal.get(Calendar.DAY_OF_MONTH)) {
+		while (toDate.get(Calendar.DAY_OF_MONTH) != cal.get(Calendar.DAY_OF_MONTH)) {
 			Date scheduleDate = cal.getTime();
 			System.out.println("Schedule for " + sdf.format(scheduleDate));
 
@@ -105,7 +104,7 @@ public class EventSchedulerEngine {
 				.map(workForce -> convertToModelUI(workForce))
 				.filter(schedule -> on(scheduleDate, schedule.getScheduleDate()))
 				.collect(Collectors.toList());
-		
+
 		totalUsersToBeAssignedForScheduleDate = totalUsersRequiredByEvent - allocatedUsersForScheduleDate.size();
 
 		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate
@@ -114,10 +113,10 @@ public class EventSchedulerEngine {
 
 		// Get All User for Given Date and Zone Id and filter with above scheduled users
 		totalUnassignedUsersInZoneForScheduleDate = userRepository.findByZoneId(zoneId)
-				.stream()
-				.map(user -> modelMapper.map(user, UserModelUI.class))
+				.stream().map(user -> modelMapper.map(user, UserModelUI.class))
 				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate()))
-				.filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
+				.filter(user -> !scheduledUsersMap.containsKey(user.getId()))
+				.collect(Collectors.toList());
 
 	}
 
@@ -201,8 +200,12 @@ public class EventSchedulerEngine {
 		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
 		// Sort by Severity(EventSeverityEnum)
 
-		return eventRepository.findByStatus(EventStatusEnum.UNASSIGNED).stream().map(event -> modelMapper.map(event, EventModelUI.class)).filter(event -> on(scheduleDate, event.getStartDate()))
-				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING).sorted(new EventModelUIComparator()).collect(Collectors.toList());
+		return eventRepository
+				.findByStatus(EventStatusEnum.UNASSIGNED).stream()
+				.map(event -> modelMapper.map(event, EventModelUI.class))
+				.filter(event -> on(scheduleDate, event.getStartDate()))
+				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING)
+				.sorted(new EventModelUIComparator()).collect(Collectors.toList());
 	}
 
 	private boolean betweenInclusive(Date scheduleDate, Date dateStart, Date dateEnd) {
@@ -254,7 +257,10 @@ public class EventSchedulerEngine {
 	}
 
 	private Map<Integer, ZoneModel> getZoneMap() {
-		return zoneRepository.findAll().stream().collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
+		return zoneRepository
+				.findAll()
+				.stream()
+				.collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
 	}
 
 }
