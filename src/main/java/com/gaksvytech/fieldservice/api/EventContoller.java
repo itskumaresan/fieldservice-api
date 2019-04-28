@@ -2,8 +2,11 @@ package com.gaksvytech.fieldservice.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -20,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
+import com.gaksvytech.fieldservice.entity.Users;
 import com.gaksvytech.fieldservice.enums.ActiveFlagEnum;
 import com.gaksvytech.fieldservice.enums.EventStatusEnum;
 import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
@@ -28,6 +32,7 @@ import com.gaksvytech.fieldservice.model.EventModelUI;
 import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
+import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
 import com.gaksvytech.fieldservice.scheduler.EventSchedulerEngine;
 
@@ -46,6 +51,12 @@ public class EventContoller {
 
 	@Autowired
 	public EventRepository eventRepository;
+
+	@Autowired
+	public ScheduleRepository eventScheduleRepository;
+
+	@Autowired
+	public UserRepository userRepository;
 
 	@Autowired
 	public ZoneRepository zoneRepository;
@@ -158,6 +169,21 @@ public class EventContoller {
 	private EventModelUI convertToModelUI(Events event) {
 		EventModelUI eventModelUI = modelMapper.map(event, EventModelUI.class);
 		eventModelUI.setZone(zoneRepository.findById(eventModelUI.getZoneId()));
+
+		String userName = "";
+
+		List<Schedules> scheduleList = eventScheduleRepository.findByEventId(event.getId()).stream().collect(Collectors.toList());
+
+		Map<Long, Users> userMap = userRepository.findAll().stream().collect(Collectors.toMap(Users::getId, Function.identity()));
+
+		for (Iterator iterator = scheduleList.iterator(); iterator.hasNext();) {
+			Schedules schedules = (Schedules) iterator.next();
+
+			userName += userMap.get(schedules.getUserId()).getName() + ",";
+		}
+
+		eventModelUI.setUserName(userName);
+
 		return eventModelUI;
 	}
 

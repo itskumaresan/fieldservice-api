@@ -33,4 +33,5 @@ public class EventModelUI {
 	private int numberOfWorkersRequired;
 	private double lattitude;
 	private double longitude;
+	private String userName;
 }
