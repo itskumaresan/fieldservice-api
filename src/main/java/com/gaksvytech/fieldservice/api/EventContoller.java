@@ -184,7 +184,7 @@ public class EventContoller {
 				userName += userMap.get(schedules.getUserId()).getName() + ",";
 			}
 
-			if (!userName.isBlank()) {
+			if (!"".equals(userName)) {
 				userName = userName.substring(0, userName.length() - 1);
 			}
 		} catch (Exception e) {
