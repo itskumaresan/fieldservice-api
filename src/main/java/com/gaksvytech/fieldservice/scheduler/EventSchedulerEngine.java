@@ -77,7 +77,7 @@ public class EventSchedulerEngine {
 			if (!unassignedEvents.isEmpty()) {
 				unassignedEvents.stream().forEach(event -> {
 					System.out.println("Scheduling for " + scheduleDate);
-					scheduleEvent(event, zoneMap, scheduleDate);
+					scheduleUsers(zoneMap.get(event.getZoneId()), event, zoneMap, scheduleDate);
 				});
 			}
 
@@ -98,7 +98,7 @@ public class EventSchedulerEngine {
 
 		totalUsersRequiredByEvent = event.getNumberOfWorkersRequired();
 
-		// Get Scheduled Users for ZoneId and Give Date
+		// Get Scheduled Users for Give Date
 		allocatedUsersForScheduleDate = scheduleRepository
 				.findAll()
 				.stream()
@@ -108,9 +108,10 @@ public class EventSchedulerEngine {
 
 		totalUsersToBeAssignedForScheduleDate = totalUsersRequiredByEvent - allocatedUsersForScheduleDate.size();
 
+		// Build Map By User Id for Scheduled Users
 		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate
 				.stream()
-				.collect(Collectors.toMap(ScheduleModelUI::getId, Function.identity()));
+				.collect(Collectors.toMap(ScheduleModelUI::getUserId, Function.identity()));
 
 		// Get All User for Given Date and Zone Id and filter with above scheduled users
 		totalUnassignedUsersInZoneForScheduleDate = userRepository.findByZoneId(zoneId)
@@ -119,10 +120,6 @@ public class EventSchedulerEngine {
 				.filter(user -> !scheduledUsersMap.containsKey(user.getId()))
 				.collect(Collectors.toList());
 
-	}
-
-	public void scheduleEvent(EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
-		scheduleUsers(zoneMap.get(event.getZoneId()), event, zoneMap, scheduleDate);
 	}
 
 	private void scheduleUsers(ZoneModel zone, EventModelUI event, Map<Integer, ZoneModel> zoneMap, Date scheduleDate) {
@@ -199,12 +196,13 @@ public class EventSchedulerEngine {
 	private List<EventModelUI> getEventsOrderBySeverity(Date scheduleDate) {
 
 		// Get Only Events with Status UNASSIGNED and SCHEDULING
-		// When the event is created [triggered by Event screen]
-		// When the event is getting scheduled (scheduled users < noOfUsersRequired)
+		// Get Event for the given schedule Date
+		// UNASSIGNED: When the event is created [triggered by Event screen]
+		// SCHEDULING: When the event is getting scheduled (scheduled users < noOfUsersRequired)
 		// Sort by Severity(EventSeverityEnum)
 
 		return eventRepository
-				.findByStatus(EventStatusEnum.UNASSIGNED).stream()
+				.findAll().stream()
 				.map(event -> modelMapper.map(event, EventModelUI.class))
 				.filter(event -> on(scheduleDate, event.getStartDate()))
 				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING)

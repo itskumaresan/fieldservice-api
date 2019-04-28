@@ -29,6 +29,7 @@ import com.gaksvytech.fieldservice.model.UserModelUI;
 import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
+import com.gaksvytech.fieldservice.scheduler.EventSchedulerEngine;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +40,9 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "Field Service Events API")
 @RequestMapping("api/v1/events/")
 public class EventContoller {
+
+	@Autowired
+	public EventSchedulerEngine eventSchedulerEngine;
 
 	@Autowired
 	public EventRepository eventRepository;
@@ -89,6 +93,11 @@ public class EventContoller {
 		user.setStatus(EventStatusEnum.UNASSIGNED);
 		Events saved = eventRepository.save(user);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(saved.getId()).toUri();
+		try {
+			eventSchedulerEngine.process();
+		} catch (Exception e) {
+			System.out.println("Exception while scheduling" + e.getMessage());
+		}
 		return ResponseEntity.created(uri).body(convertToModelUI(saved));
 	}
 

@@ -10,3 +10,5 @@ insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED)
 values (10004,20003,30000,PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
 insert into schedules(ID, EVENT_ID, USER_ID, SCHEDULE_DATE, CREATED, UPDATED) 
 values (10005,20003,30000,PARSEDATETIME('26 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'), PARSEDATETIME('24 Apr 2019','dd MMM yyyy','en'));
+
+
