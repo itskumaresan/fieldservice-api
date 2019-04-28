@@ -8,6 +8,6 @@ public class EventModelUIComparator implements Comparator<EventModelUI> {
 
 	@Override
 	public int compare(EventModelUI o1, EventModelUI o2) {
-		return o1.getSeverity().value() - o2.getSeverity().value();
+		return o2.getSeverity().value() - o1.getSeverity().value();
 	}
 }

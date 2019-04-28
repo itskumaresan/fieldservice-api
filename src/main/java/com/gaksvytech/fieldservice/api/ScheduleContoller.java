@@ -4,9 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -18,14 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
-import com.gaksvytech.fieldservice.entity.Users;
 import com.gaksvytech.fieldservice.enums.UserWorkStatusEnum;
 import com.gaksvytech.fieldservice.model.ScheduleModelUI;
-import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
-import com.gaksvytech.fieldservice.repository.UserRepository;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,12 +33,6 @@ public class ScheduleContoller {
 
 	@Autowired
 	public ScheduleRepository eventScheduleRepository;
-
-	@Autowired
-	public EventRepository eventRepository;
-
-	@Autowired
-	public UserRepository userRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -101,14 +89,6 @@ public class ScheduleContoller {
 
 	private ScheduleModelUI convertToModelUI(Schedules schedules) {
 		ScheduleModelUI workforceModelUI = modelMapper.map(schedules, ScheduleModelUI.class);
-
-		Map<Long, Events> eventMap = eventRepository.findAll().stream().collect(Collectors.toMap(Events::getId, Function.identity()));
-
-		Map<Long, Users> userMap = userRepository.findAll().stream().collect(Collectors.toMap(Users::getId, Function.identity()));
-
-		workforceModelUI.setUserName(userMap.get(workforceModelUI.getUserId()).getName());
-		workforceModelUI.setEventName(eventMap.get(workforceModelUI.getEventId()).getName());
-
 		return workforceModelUI;
 	}
 

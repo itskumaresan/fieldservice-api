@@ -172,16 +172,25 @@ public class EventContoller {
 
 		String userName = "";
 
-		List<Schedules> scheduleList = eventScheduleRepository.findByEventId(event.getId()).stream().collect(Collectors.toList());
+		try {
 
-		Map<Long, Users> userMap = userRepository.findAll().stream().collect(Collectors.toMap(Users::getId, Function.identity()));
+			List<Schedules> scheduleList = eventScheduleRepository.findByEventId(event.getId()).stream().collect(Collectors.toList());
 
-		for (Iterator iterator = scheduleList.iterator(); iterator.hasNext();) {
-			Schedules schedules = (Schedules) iterator.next();
+			Map<Long, Users> userMap = userRepository.findAll().stream().collect(Collectors.toMap(Users::getId, Function.identity()));
 
-			userName += userMap.get(schedules.getUserId()).getName() + ",";
+			for (Iterator iterator = scheduleList.iterator(); iterator.hasNext();) {
+				Schedules schedules = (Schedules) iterator.next();
+
+				userName += userMap.get(schedules.getUserId()).getName() + ",";
+			}
+
+			if (!userName.isBlank()) {
+				userName = userName.substring(0, userName.length() - 1);
+			}
+		} catch (Exception e) {
+			// Swallow :-)
 		}
-
+		
 		eventModelUI.setUserName(userName);
 
 		return eventModelUI;
