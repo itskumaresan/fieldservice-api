@@ -27,6 +27,7 @@ import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
+import com.gaksvytech.fieldservice.utils.EmailNotification;
 import com.gaksvytech.fieldservice.utils.EventModelUIComparator;
 
 @Service
@@ -179,8 +180,10 @@ public class EventSchedulerEngine {
 		for (Iterator<UserModelUI> iterator = totalUnassignedUsersInZoneForScheduleDate.iterator(); iterator.hasNext();) {
 			UserModelUI userModelUI = (UserModelUI) iterator.next();
 			// Allocate the User to the Event for the Schedule Date
-			System.out.println("User[" + userModelUI.getId() + "] allocating to event[" + event.getId() + "] for Scheduled Date [" + scheduleDate + "]");
+			String emailSubjectBody = "User[" + userModelUI.getId() + "] allocating to event[" + event.getId() + "] for Scheduled Date [" + scheduleDate + "]";
+			System.out.println(emailSubjectBody);
 			scheduleRepository.save(new Schedules(0l, event.getId(), userModelUI.getId(), scheduleDate, UserWorkStatusEnum.ASSIGNED, null, null));
+			EmailNotification.sendEmail(emailSubjectBody);
 			if (--totalUsersToBeAssignedForScheduleDate == 0) {
 				break;
 			}
