@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gaksvytech.fieldservice.api.EmailServiceImpl;
 import com.gaksvytech.fieldservice.entity.Events;
 import com.gaksvytech.fieldservice.entity.Schedules;
 import com.gaksvytech.fieldservice.enums.EventStatusEnum;
@@ -27,7 +28,6 @@ import com.gaksvytech.fieldservice.repository.EventRepository;
 import com.gaksvytech.fieldservice.repository.ScheduleRepository;
 import com.gaksvytech.fieldservice.repository.UserRepository;
 import com.gaksvytech.fieldservice.repository.ZoneRepository;
-import com.gaksvytech.fieldservice.utils.EmailNotification;
 import com.gaksvytech.fieldservice.utils.EventModelUIComparator;
 
 @Service
@@ -47,6 +47,9 @@ public class EventSchedulerEngine {
 
 	@Autowired
 	private ModelMapper modelMapper;
+
+	@Autowired
+	public EmailServiceImpl emailService;
 
 	// Initialized by initialize method - starts
 	private List<UserModelUI> totalUnassignedUsersInZoneForScheduleDate = new ArrayList<UserModelUI>();
@@ -99,26 +102,16 @@ public class EventSchedulerEngine {
 		totalUsersRequiredByEvent = event.getNumberOfWorkersRequired();
 
 		// Get Scheduled Users for Give Date
-		allocatedUsersForScheduleDate = scheduleRepository
-				.findAll()
-				.stream()
-				.map(workForce -> convertToModelUI(workForce))
-				.filter(schedule -> on(scheduleDate, schedule.getScheduleDate()))
-				.collect(Collectors.toList());
+		allocatedUsersForScheduleDate = scheduleRepository.findAll().stream().map(workForce -> convertToModelUI(workForce)).filter(schedule -> on(scheduleDate, schedule.getScheduleDate())).collect(Collectors.toList());
 
 		totalUsersToBeAssignedForScheduleDate = totalUsersRequiredByEvent - allocatedUsersForScheduleDate.size();
 
 		// Build Map By User Id for Scheduled Users
-		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate
-				.stream()
-				.collect(Collectors.toMap(ScheduleModelUI::getUserId, Function.identity()));
+		Map<Long, ScheduleModelUI> scheduledUsersMap = allocatedUsersForScheduleDate.stream().collect(Collectors.toMap(ScheduleModelUI::getUserId, Function.identity()));
 
 		// Get All User for Given Date and Zone Id and filter with above scheduled users
-		totalUnassignedUsersInZoneForScheduleDate = userRepository.findByZoneId(zoneId)
-				.stream().map(user -> modelMapper.map(user, UserModelUI.class))
-				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate()))
-				.filter(user -> !scheduledUsersMap.containsKey(user.getId()))
-				.collect(Collectors.toList());
+		totalUnassignedUsersInZoneForScheduleDate = userRepository.findByZoneId(zoneId).stream().map(user -> modelMapper.map(user, UserModelUI.class))
+				.filter(user -> betweenInclusive(scheduleDate, user.getStartDate(), user.getEndDate())).filter(user -> !scheduledUsersMap.containsKey(user.getId())).collect(Collectors.toList());
 
 	}
 
@@ -180,7 +173,13 @@ public class EventSchedulerEngine {
 			String emailSubjectBody = "User[" + userModelUI.getId() + "] allocating to event[" + event.getId() + "] for Scheduled Date [" + scheduleDate + "]";
 			System.out.println(emailSubjectBody);
 			scheduleRepository.save(new Schedules(0l, event.getId(), userModelUI.getId(), scheduleDate, UserWorkStatusEnum.ASSIGNED, null, null));
-			EmailNotification.sendEmail(emailSubjectBody);
+			try {
+				emailService.sendSimpleMessage(userModelUI.getEmail(), event.getName() + " is assigned", "Dear " + userModelUI.getName() + ", Event " + event.getName() + " is assigned");
+			} catch (Exception e) {
+				System.out.println("Unable to send Email: " + e.getMessage());
+				e.printStackTrace();
+				// Swallow it
+			}
 			if (--totalUsersToBeAssignedForScheduleDate == 0) {
 				break;
 			}
@@ -198,15 +197,12 @@ public class EventSchedulerEngine {
 		// Get Only Events with Status UNASSIGNED and SCHEDULING
 		// Get Event for the given schedule Date
 		// UNASSIGNED: When the event is created [triggered by Event screen]
-		// SCHEDULING: When the event is getting scheduled (scheduled users < noOfUsersRequired)
+		// SCHEDULING: When the event is getting scheduled (scheduled users <
+		// noOfUsersRequired)
 		// Sort by Severity(EventSeverityEnum)
 
-		return eventRepository
-				.findAll().stream()
-				.map(event -> modelMapper.map(event, EventModelUI.class))
-				.filter(event -> on(scheduleDate, event.getStartDate()))
-				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING)
-				.sorted(new EventModelUIComparator()).collect(Collectors.toList());
+		return eventRepository.findAll().stream().map(event -> modelMapper.map(event, EventModelUI.class)).filter(event -> on(scheduleDate, event.getStartDate()))
+				.filter(event -> event.getStatus() == EventStatusEnum.UNASSIGNED || event.getStatus() == EventStatusEnum.SCHEDULING).sorted(new EventModelUIComparator()).collect(Collectors.toList());
 	}
 
 	private boolean betweenInclusive(Date scheduleDate, Date dateStart, Date dateEnd) {
@@ -258,10 +254,7 @@ public class EventSchedulerEngine {
 	}
 
 	private Map<Integer, ZoneModel> getZoneMap() {
-		return zoneRepository
-				.findAll()
-				.stream()
-				.collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
+		return zoneRepository.findAll().stream().collect(Collectors.toMap(ZoneModel::getId, Function.identity()));
 	}
 
 }
