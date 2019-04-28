@@ -178,7 +178,7 @@ public class EventContoller {
 
 			Map<Long, Users> userMap = userRepository.findAll().stream().collect(Collectors.toMap(Users::getId, Function.identity()));
 
-			for (Iterator iterator = scheduleList.iterator(); iterator.hasNext();) {
+			for (Iterator<Schedules> iterator = scheduleList.iterator(); iterator.hasNext();) {
 				Schedules schedules = (Schedules) iterator.next();
 
 				userName += userMap.get(schedules.getUserId()).getName() + ",";
